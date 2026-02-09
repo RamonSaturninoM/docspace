@@ -1,0 +1,224 @@
+:root {
+  --ink: #0b0e14;
+  --fog: #f6f4f0;
+  --ocean: #1b7f7a;
+  --ember: #ff7b3a;
+  --iris: #274690;
+  --cloud: #ffffff;
+  --shadow: 0 20px 60px rgba(9, 14, 30, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at 20% 20%, #fff7eb 0%, #f9efe5 35%, #e9f0f2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 36px;
+}
+
+.page {
+  width: min(980px, 100%);
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) minmax(280px, 1.2fr);
+  gap: 28px;
+}
+
+.hero {
+  padding: 28px 26px;
+  background: linear-gradient(145deg, rgba(27, 127, 122, 0.08), rgba(39, 70, 144, 0.12));
+  border-radius: 28px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  animation: floatIn 0.7s ease both;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(255, 123, 58, 0.25), transparent 55%);
+  pointer-events: none;
+}
+
+.hero h1 {
+  font-size: clamp(32px, 4vw, 44px);
+  margin: 0 0 12px 0;
+  letter-spacing: -0.02em;
+}
+
+.hero p {
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+  font-size: 15px;
+  max-width: 34ch;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+
+.panel {
+  padding: 28px;
+  border-radius: 24px;
+  background: var(--cloud);
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  animation: riseIn 0.7s ease both;
+}
+
+.dropzone {
+  border: 2px dashed rgba(27, 127, 122, 0.35);
+  border-radius: 18px;
+  padding: 28px;
+  text-align: center;
+  background: rgba(27, 127, 122, 0.05);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.dropzone.dragover {
+  border-color: var(--ember);
+  background: rgba(255, 123, 58, 0.12);
+}
+
+.dropzone input {
+  display: none;
+}
+
+.dropzone label {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.dropzone span {
+  font-size: 13px;
+  color: rgba(11, 14, 20, 0.6);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+button {
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button.primary {
+  background: var(--ink);
+  color: white;
+}
+
+button.secondary {
+  background: rgba(39, 70, 144, 0.12);
+  color: var(--ink);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 200px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.file {
+  background: rgba(11, 14, 20, 0.04);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.file small {
+  font-family: "IBM Plex Mono", monospace;
+  color: rgba(11, 14, 20, 0.55);
+}
+
+.status {
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(39, 70, 144, 0.08);
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.status strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+@keyframes floatIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 860px) {
+  body {
+    padding: 24px;
+  }
+
+  .page {
+    grid-template-columns: 1fr;
+  }
+}

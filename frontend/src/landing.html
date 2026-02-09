@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Docspace Ingestion</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="landing.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div class="tag">Docspace Intake</div>
+        <h1>Upload docs. Start ingestion instantly.</h1>
+        <p>
+          Drag in markdown, text, or reStructuredText files. Each upload will be sent to the
+          ingestion pipeline so it lands in your vector index.
+        </p>
+        <p><strong>Supported:</strong> .md, .markdown, .txt, .rst</p>
+      </section>
+
+      <section class="panel">
+        <div class="dropzone" id="dropzone">
+          <label for="file-input">
+            Click to add files or drag them here
+            <span>Multiple files supported</span>
+          </label>
+          <input id="file-input" type="file" accept=".md,.markdown,.txt,.rst" multiple />
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="ingest-btn" disabled>Send to ingestion</button>
+          <button class="secondary" id="clear-btn" disabled>Clear list</button>
+        </div>
+
+        <div class="list" id="file-list"></div>
+
+        <div class="status" id="status">
+          <strong>Status</strong>
+          Waiting for files. Files will be uploaded to <code>/api/ingest</code>.
+        </div>
+      </section>
+    </main>
+
+    <script src="landing.js"></script>
+  </body>
+</html>
