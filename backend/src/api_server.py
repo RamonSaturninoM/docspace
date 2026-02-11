@@ -14,10 +14,15 @@ from typing import List
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.responses import JSONResponse
+from pydantic import BaseModel
 
 from ingestion_engine import ingest
 
 app = FastAPI(title="Docspace Ingestion API", version="0.1")
+
+
+class ChatRequest(BaseModel):
+    message: str
 
 
 @app.post("/api/ingest")
@@ -63,3 +68,13 @@ async def ingest_files(files: List[UploadFile] = File(...)) -> JSONResponse:
 @app.get("/healthz")
 def healthz() -> JSONResponse:
     return JSONResponse({"ok": True})
+
+
+@app.post("/api/chat")
+def chat(request: ChatRequest) -> JSONResponse:
+    # Placeholder: replace with real RAG or LLM pipeline.
+    reply = (
+        "Chat backend is online. You said: "
+        f"\"{request.message.strip()}\". Wire this to your RAG pipeline next."
+    )
+    return JSONResponse({"reply": reply})

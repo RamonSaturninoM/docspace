@@ -1,0 +1,115 @@
+:root {
+  --ink: #0b0e14;
+  --fog: #f6f4f0;
+  --ocean: #1b7f7a;
+  --ember: #ff7b3a;
+  --iris: #274690;
+  --cloud: #ffffff;
+  --shadow: 0 20px 60px rgba(9, 14, 30, 0.18);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "Space Grotesk", system-ui, -apple-system, sans-serif;
+  background: radial-gradient(circle at top, rgba(39, 70, 144, 0.2), transparent 50%),
+    radial-gradient(circle at 20% 20%, rgba(27, 127, 122, 0.25), transparent 55%),
+    #f8f4ee;
+  color: var(--ink);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.shell {
+  width: min(960px, 100%);
+  display: grid;
+  gap: 28px;
+}
+
+.hero {
+  text-align: center;
+}
+
+.badge {
+  display: inline-flex;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  background: rgba(11, 14, 20, 0.08);
+}
+
+.hero h1 {
+  margin: 18px 0 8px;
+  font-size: clamp(32px, 5vw, 48px);
+}
+
+.hero p {
+  margin: 0;
+  font-size: 16px;
+  color: rgba(11, 14, 20, 0.65);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 18px;
+}
+
+.card {
+  background: var(--cloud);
+  padding: 22px;
+  border-radius: 20px;
+  text-decoration: none;
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 70px rgba(9, 14, 30, 0.22);
+}
+
+.icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  background: linear-gradient(135deg, rgba(27, 127, 122, 0.2), rgba(39, 70, 144, 0.25));
+}
+
+.card h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.card p {
+  margin: 0;
+  color: rgba(11, 14, 20, 0.65);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.card span {
+  font-weight: 600;
+  color: var(--iris);
+}
+
+@media (max-width: 720px) {
+  body {
+    padding: 20px;
+  }
+}
