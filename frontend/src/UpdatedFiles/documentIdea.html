@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Document | Company Portal</title>
+  <link rel="stylesheet" href="styles/documentIdea.css">
+  <script defer src="scripts/documentIdea.js"></script>
+</head>
+<body>
+
+<header>
+  <h1>Company Portal</h1>
+  <div class="top-nav">
+    <input type="text" id="searchInput" placeholder="Search documents...">
+    <button id="searchBtn">Search</button>
+    <nav>
+      <a href="portal.html">Home</a>
+      <a href="#">Documents</a>
+      <a href="#">Departments</a>
+      <a href="#">Profile</a>
+      <a href="signup.html">Logout</a>
+    </nav>
+  </div>
+</header>
+
+<div class="main-container">
+
+  <!-- LEFT PANEL: AI Assistant -->
+  <aside class="sidebar">
+    <div class="ai-chat">
+      <h2>AI Assistant</h2>
+      <div class="chat-box">
+        <p>Ask me to find documents or information.</p>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT PANEL: Document Viewer + Comments -->
+  <section class="content">
+    <div class="document-header">
+      <h2 id="docTitle">Document Title Placeholder</h2>
+      <button id="pinBtn">Pin Document</button>
+    </div>
+
+    <div class="document-viewer">
+      <p>Document content would be displayed here (PDF, Word, etc.).</p>
+      <iframe id="docFrame" src="" frameborder="0"></iframe>
+    </div>
+
+    <div class="comments-section">
+      <h3>Comments</h3>
+      <div id="commentsList">
+        <!-- Existing comments will appear here -->
+        <div class="comment">
+          <strong>Jane Doe:</strong> Please review section 2.
+        </div>
+        <div class="comment">
+          <strong>John Smith:</strong> Can we update the Q1 data?
+        </div>
+      </div>
+
+      <form id="commentForm">
+        <input type="text" id="commentInput" placeholder="Add a comment...">
+        <button type="submit">Post</button>
+      </form>
+    </div>
+  </section>
+</div>
+
+</body>
+</html>

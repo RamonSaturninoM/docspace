@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Department Documents</title>
+    <link rel="stylesheet" href="allDocuments.css">
+</head>
+
+<body>
+
+<header>
+    <h1>Department Documents</h1>
+    <nav>
+        <a href="#">Home</a>
+        <a href="landing.html">Departments</a>
+        <a href="#">My Documents</a>
+        <a href="#">API Dashboard</a>
+        <a href="#">Logout</a>
+    </nav>
+</header>
+
+<div class="container">
+
+    <div class="department-header">
+        <h2 id="departmentName">Human Resources</h2>
+        <p>All documents available for this department.</p>
+    </div>
+
+    <div class="controls">
+        <input type="text" placeholder="Search documents..." />
+
+        <select>
+            <option>All File Types</option>
+            <option>PDF</option>
+            <option>DOCX</option>
+            <option>Spreadsheet</option>
+            <option>Image</option>
+        </select>
+
+        <select>
+            <option>Sort by Latest</option>
+            <option>Sort by Name</option>
+            <option>Sort by Size</option>
+        </select>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Document Name</th>
+                <th>Type</th>
+                <th>Department</th>
+                <th>Last Updated</th>
+                <th>Size</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Employee Handbook 2026</td>
+                <td>PDF</td>
+                <td>Human Resources</td>
+                <td>Jan 10, 2026</td>
+                <td>2.4 MB</td>
+                <td class="actions">
+                    <a href="#">View</a>
+                    <a href="#">Download</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Benefits Overview</td>
+                <td>PDF</td>
+                <td>Human Resources</td>
+                <td>Dec 22, 2025</td>
+                <td>1.1 MB</td>
+                <td class="actions">
+                    <a href="#">View</a>
+                    <a href="#">Download</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Onboarding Checklist</td>
+                <td>DOCX</td>
+                <td>Human Resources</td>
+                <td>Jan 3, 2026</td>
+                <td>540 KB</td>
+                <td class="actions">
+                    <a href="#">View</a>
+                    <a href="#">Download</a>
+                </td>
+            </tr>
+            <tr>
+                <td>Policy Updates</td>
+                <td>PDF</td>
+                <td>Human Resources</td>
+                <td>Feb 1, 2026</td>
+                <td>900 KB</td>
+                <td class="actions">
+                    <a href="#">View</a>
+                    <a href="#">Download</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<footer>
+    © 2026 Company Name · Department Documentation
+</footer>
+
+</body>
+</html>

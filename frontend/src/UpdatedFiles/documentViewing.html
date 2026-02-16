@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Document Viewer</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+
+    .page {
+      display: flex;
+      height: 100vh;
+    }
+
+    /* DOCUMENT SECTION */
+
+    .document-section {
+      flex: 3;
+      padding: 40px;
+      overflow-y: auto;
+      background: #fafafa;
+    }
+
+    .document-container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      max-width: 900px;
+      margin: auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .meta {
+      color: #777;
+      margin-bottom: 20px;
+    }
+
+    .content {
+      line-height: 1.6;
+      font-size: 16px;
+    }
+
+    /* SIDEBAR */
+
+    .sidebar {
+      flex: 1.2;
+      background: #ffffff;
+      border-left: 1px solid #ddd;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .sidebar h3 {
+      margin-bottom: 10px;
+    }
+
+    /* COMMENTS */
+
+    .comments-section {
+      margin-bottom: 30px;
+    }
+
+    .comment-box {
+      background: #f6f6f6;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
+
+    .comment-author {
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .comment-text {
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    .add-comment textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      resize: none;
+    }
+
+    .add-comment button {
+      margin-top: 8px;
+      padding: 8px 12px;
+      border: none;
+      background: black;
+      color: white;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    /* AI CHAT PLACEHOLDER */
+
+    .ai-section {
+      border-top: 1px solid #ddd;
+      padding-top: 20px;
+    }
+
+    .chat-box {
+      background: #f1f1f1;
+      height: 180px;
+      border-radius: 6px;
+      padding: 10px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .chat-input {
+      display: flex;
+      gap: 6px;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .chat-input button {
+      padding: 8px 12px;
+      background: black;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="page">
+
+    <!-- DOCUMENT AREA -->
+    <div class="document-section">
+      <div class="document-container">
+        <h1>Project Proposal</h1>
+
+        <div class="meta">
+          Author: John Doe <br/>
+          Department: Engineering <br/>
+          Date: March 12, 2026
+        </div>
+
+        <div class="content">
+          <p>This document outlines the full project proposal.</p>
+
+          <p>
+            Section 1: Overview  
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+          </p>
+
+          <p>
+            Section 2: Implementation  
+            Detailed breakdown of how the project will be executed.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+
+      <!-- COMMENTS -->
+      <div class="comments-section">
+        <h3>Team Comments</h3>
+
+        <div id="commentsList">
+          <div class="comment-box">
+            <div class="comment-author">Sarah (HR)</div>
+            <div class="comment-text">We should review section 2.</div>
+          </div>
+        </div>
+
+        <div class="add-comment">
+          <textarea id="commentInput" rows="3" placeholder="Leave a comment..."></textarea>
+          <button onclick="addComment()">Post Comment</button>
+        </div>
+      </div>
+
+      <!-- AI CHAT PLACEHOLDER -->
+      <div class="ai-section">
+        <h3>AI Assistant</h3>
+
+        <div class="chat-box" id="chatBox">
+          <p><strong>AI:</strong> Ask me about this document or search others.</p>
+        </div>
+
+        <div class="chat-input">
+          <input id="chatInput" type="text" placeholder="Find a document, ask about content..." />
+          <button onclick="sendMessage()">Send</button>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+
+    // COMMENTS SYSTEM (local demo)
+    function addComment() {
+      const input = document.getElementById("commentInput");
+      const text = input.value.trim();
+
+      if (!text) return;
+
+      const comment = document.createElement("div");
+      comment.className = "comment-box";
+      comment.innerHTML = `
+        <div class="comment-author">You</div>
+        <div class="comment-text">${text}</div>
+      `;
+
+      document.getElementById("commentsList").appendChild(comment);
+      input.value = "";
+    }
+
+    // AI CHAT PLACEHOLDER
+    function sendMessage() {
+      const input = document.getElementById("chatInput");
+      const text = input.value.trim();
+
+      if (!text) return;
+
+      const chatBox = document.getElementById("chatBox");
+
+      chatBox.innerHTML += `<p><strong>You:</strong> ${text}</p>`;
+      chatBox.innerHTML += `<p><strong>AI:</strong> Searching documents... (placeholder)</p>`;
+
+      chatBox.scrollTop = chatBox.scrollHeight;
+      input.value = "";
+    }
+
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+body {
+    margin: 0;
+    font-family: "Inter", Arial, Helvetica, sans-serif;
+    background-color: #0f172a;
+    color: #e5e7eb;
+}
+
+/* HEADER */
+header {
+    background-color: #111827;
+    color: white;
+    padding: 20px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #1f2937;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+/* NAV */
+nav a {
+    color: #9ca3af;
+    margin-left: 20px;
+    text-decoration: none;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+nav a:hover {
+    color: #60a5fa;
+}
+
+/* CONTAINER */
+.container {
+    padding: 40px;
+}
+
+/* STATS GRID */
+.stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+    margin-bottom: 40px;
+}
+
+/* STAT CARD */
+.card {
+    background-color: #111827;
+    border-radius: 12px;
+    padding: 22px;
+    border: 1px solid #1f2937;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+.card h3 {
+    margin-top: 0;
+    font-size: 14px;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.card .value {
+    font-size: 30px;
+    font-weight: bold;
+    margin-top: 10px;
+    color: #60a5fa;
+}
+
+/* SECTION TITLE */
+.section-title {
+    font-size: 20px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #111827;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #1f2937;
+}
+
+th,
+td {
+    padding: 14px;
+    text-align: left;
+    font-size: 14px;
+}
+
+th {
+    background-color: #1f2937;
+    color: #9ca3af;
+    font-weight: 600;
+}
+
+tr {
+    border-bottom: 1px solid #1f2937;
+}
+
+tr:nth-child(even) {
+    background-color: #020617;
+}
+
+/* STATUS COLORS (monitoring style) */
+.status-success {
+    color: #22c55e;
+    font-weight: bold;
+}
+
+.status-warning {
+    color: #f59e0b;
+    font-weight: bold;
+}
+
+.status-error {
+    color: #ef4444;
+    font-weight: bold;
+}
+
+/* FOOTER */
+footer {
+    margin-top: 40px;
+    background-color: #111827;
+    color: #9ca3af;
+    text-align: center;
+    padding: 15px;
+    font-size: 13px;
+    border-top: 1px solid #1f2937;
+}

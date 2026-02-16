@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Usage Dashboard</title>
+    <link rel="stylesheet" type="text/css" href="dashboard.css">
+</head>
+
+<body>
+
+<header>
+    <h1>API Usage Dashboard</h1>
+    <nav>
+        <a href="#">Home</a>
+        <a href="landing.html">Docs</a>
+        <a href="#">API</a>
+        <a href="#">Dashboard</a>
+        <a href="signup.html">Logout</a>
+    </nav>
+</header>
+
+<div class="container">
+
+    <div class="stats">
+        <div class="card">
+            <h3>Total API Requests (This Month)</h3>
+            <div class="value">124,580</div>
+        </div>
+        <div class="card">
+            <h3>Successful Requests</h3>
+            <div class="value">120,430</div>
+        </div>
+        <div class="card">
+            <h3>Failed Requests</h3>
+            <div class="value">4,150</div>
+        </div>
+        <div class="card">
+            <h3>Active API Keys</h3>
+            <div class="value">18</div>
+        </div>
+    </div>
+
+    <h2 class="section-title">Recent API Activity</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Endpoint</th>
+                <th>Method</th>
+                <th>Status</th>
+                <th>Response Time</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>/api/documents</td>
+                <td>GET</td>
+                <td class="status-success">200 OK</td>
+                <td>120 ms</td>
+                <td>2026-02-02 14:21</td>
+            </tr>
+            <tr>
+                <td>/api/documents</td>
+                <td>POST</td>
+                <td class="status-success">201 Created</td>
+                <td>240 ms</td>
+                <td>2026-02-02 14:18</td>
+            </tr>
+            <tr>
+                <td>/api/auth/login</td>
+                <td>POST</td>
+                <td class="status-error">401 Unauthorized</td>
+                <td>95 ms</td>
+                <td>2026-02-02 14:15</td>
+            </tr>
+            <tr>
+                <td>/api/departments</td>
+                <td>GET</td>
+                <td class="status-warning">304 Not Modified</td>
+                <td>80 ms</td>
+                <td>2026-02-02 14:10</td>
+            </tr>
+            <tr>
+                <td>/api/documents/42</td>
+                <td>DELETE</td>
+                <td class="status-success">204 No Content</td>
+                <td>160 ms</td>
+                <td>2026-02-02 14:05</td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<footer>
+    © 2026 Docspace · API Monitoring
+</footer>
+
+</body>
+
+</html>
