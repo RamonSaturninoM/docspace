@@ -5,7 +5,6 @@ body {
   color: #e5e7eb;
 }
 
-/* HEADER */
 header {
   background-color: #111827;
   padding: 20px 40px;
@@ -58,14 +57,12 @@ header nav a:hover {
   color: #60a5fa;
 }
 
-/* MAIN CONTAINER */
 .main-container {
   display: flex;
   gap: 30px;
   padding: 40px;
 }
 
-/* SIDEBAR */
 .sidebar {
   width: 280px;
   display: flex;
@@ -86,7 +83,6 @@ header nav a:hover {
   min-height: 150px;
 }
 
-/* CONTENT */
 .content {
   flex: 1;
   display: flex;
