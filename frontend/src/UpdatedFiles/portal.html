@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docspcae Portal Home</title>
+  <link rel="stylesheet" href="styles/portal.css">
+  <script defer src="scripts/portal.js"></script>
+</head>
+<body>
+  <!-- HEADER -->
+  <header>
+    <h1>Docspace Portal</h1>
+    <div class="top-nav">
+      <input type="text" id="searchInput" placeholder="Search documents...">
+      <button id="searchBtn">Search</button>
+      <nav>
+        <a href="#">Home</a>
+        <a href="#">Documents</a>
+        <a href="#">Departments</a>
+        <a href="#">Profile</a>
+        <a href="signup.html">Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <div class="main-container">
+
+    <!-- LEFT PANEL: AI Assistant + Quick Links -->
+    <aside class="sidebar">
+      <div class="ai-chat">
+        <h2>AI Assistant</h2>
+        <div class="chat-box">
+          <p>Ask me to find documents or information.</p>
+        </div>
+      </div>
+
+      <div class="quick-links">
+        <h2>Quick Links</h2>
+        <ul>
+          <li><a href="#">View All Documents</a></li>
+          <li><a href="#">My Department</a></li>
+          <li><a href="#">Recent Uploads</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- RIGHT PANEL: Pinned Docs + Recent Docs + Department Updates -->
+    <section class="content">
+
+      <div class="pinned-docs">
+        <h2>Pinned Documents</h2>
+        <ul id="pinnedList">
+          <li><a href="document.html?doc=Company%20Policy%202026.pdf">Company Policy - 2026.pdf</a></li>
+          <li><a href="document.html?doc=Quarterly%20Report%20Q1%202026.docx">Quarterly Report Q1 2026.docx</a></li>
+        </ul>
+      </div>
+
+      <div class="recent-docs">
+        <h2>Recent Documents</h2>
+        <ul id="docList">
+          <li><a href="document.html?doc=Company%20Policy%202026.pdf">Company Policy - 2026.pdf</a></li>
+          <li><a href="document.html?doc=Quarterly%20Report%20Q1%202026.docx">Quarterly Report Q1 2026.docx</a></li>
+          <li><a href="document.html?doc=HR%20Guidelines%20Updated.docx">HR Guidelines - Updated.docx</a></li>
+        </ul>
+      </div>
+
+      <div class="department-updates">
+        <h2>Department Updates</h2>
+        <ul>
+          <li>Engineering: New project template uploaded.</li>
+          <li>Finance: Q1 budget approved.</li>
+          <li>HR: Employee handbook updated.</li>
+        </ul>
+      </div>
+
+    </section>
+  </div>
+</body>
+</html>

@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width"/>
+    <meta charSet="utf-8"/>
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png"/>
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png"/>
+    <link rel="manifest" href="/favicon/site.webmanifest"/>
+    <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#000000"/>
+    <link rel="shortcut icon" href="/favicon/favicon.ico"/>
+    <meta name="msapplication-TileColor" content="#000000"/>
+    <meta name="msapplication-config" content="/favicon/browserconfig.xml"/>
+    <meta name="theme-color" content="#000"/>
+    <link rel="alternate" type="application/rss+xml" href="/feed.xml"/>
+    <meta name="description" content="A statically generated blog example using Next.js and Markdown."/>
+    <meta property="og:image" content="https://og-image.now.sh/Next.js%20Blog%20Starter%20Example.png?theme=light&amp;md=1&amp;fontSize=100px&amp;images=https%3A%2F%2Fassets.vercel.com%2Fimage%2Fupload%2Ffront%2Fassets%2Fdesign%2Fnextjs-black-logo.svg"/>
+    <title>Next.js Blog Example with Markdown</title>
+    <meta name="next-head-count" content="15"/>
+    <link rel="preload" href="/_next/static/css/dea4994d6f04d9490ec7.css" as="style"/>
+    <link rel="stylesheet" href="/_next/static/css/dea4994d6f04d9490ec7.css" data-n-g=""/>
+    <noscript data-n-css=""></noscript>
+    <link rel="preload" href="/_next/static/chunks/main-f094e29a130fd0913879.js" as="script"/>
+    <link rel="preload" href="/_next/static/chunks/webpack-95c2b224bccf352ee870.js" as="script"/>
+    <link rel="preload" href="/_next/static/chunks/framework.daa7383ad2ab2e6757c1.js" as="script"/>
+    <link rel="preload" href="/_next/static/chunks/commons.286c5ad94e4334e87283.js" as="script"/>
+    <link rel="preload" href="/_next/static/chunks/pages/_app-78e534ec3687abd1183c.js" as="script"/>
+    <link rel="preload" href="/_next/static/chunks/2c3b9bffc7150b37a7b3810dfcf1c0b0fac2bd18.9fa5f7207f37e655ee89.js" as="script"/>
+    <link rel="preload" href="/_next/static/chunks/pages/index-b841417c9d9770d1812d.js" as="script"/>
+
+<style>
+        /* Reset / Normalize */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans,
+                sans-serif;
+            line-height: 1.5;
+        }
+
+        body {
+            font-family: inherit;
+            line-height: inherit;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: inherit;
+        }
+
+        img, video {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        button {
+            cursor: pointer;
+            background: transparent;
+            border: none;
+        }
+
+        /* Container */
+        .container {
+            width: 100%;
+            margin-left: auto;
+            margin-right: auto;
+            padding-left: 1.25rem;
+            padding-right: 1.25rem;
+        }
+
+        @media(min-width: 640px) { .container { max-width: 640px; } }
+        @media(min-width: 768px) { .container { max-width: 768px; } }
+        @media(min-width: 1024px) { .container { max-width: 1024px; } }
+        @media(min-width: 1280px) { .container { max-width: 1280px; } }
+        @media(min-width: 1536px) { .container { max-width: 1536px; } }
+
+        /* Typography */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: inherit;
+            font-size: inherit;
+            margin: 0;
+        }
+
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+
+        .font-bold { font-weight: 700; }
+        .leading-tight { line-height: 1.2; }
+        .leading-snug { line-height: 1.375; }
+        .leading-relaxed { line-height: 1.625; }
+
+        /* Headings sizes */
+        .text-6xl { font-size: 2.75rem; }
+        .text-7xl { font-size: 4.5rem; }
+        .text-8xl { font-size: 6.25rem; }
+        .text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+        .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+
+        /* Layout */
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+
+        .grid { display: grid; }
+        .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+        .md-grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+        .gap-y-20 { row-gap: 5rem; }
+        .md-gap-y-32 { row-gap: 8rem; }
+        .gap-x-8 { column-gap: 2rem; }
+        .gap-x-16 { column-gap: 4rem; }
+        .gap-x-32 { column-gap: 8rem; }
+
+        /* Spacing */
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .mx-3 { margin-left: 0.75rem; margin-right: 0.75rem; }
+        .mr-4 { margin-right: 1rem; }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mb-5 { margin-bottom: 1.25rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mb-10 { margin-bottom: 2.5rem; }
+        .mb-12 { margin-bottom: 3rem; }
+        .mb-16 { margin-bottom: 4rem; }
+        .mb-20 { margin-bottom: 5rem; }
+        .mb-24 { margin-bottom: 6rem; }
+        .mb-32 { margin-bottom: 8rem; }
+        .mt-5 { margin-top: 1.25rem; }
+        .mt-8 { margin-top: 2rem; }
+        .mt-16 { margin-top: 4rem; }
+        .mt-28 { margin-top: 7rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .py-28 { padding-top: 7rem; padding-bottom: 7rem; }
+        .px-5 { padding-left: 1.25rem; padding-right: 1.25rem; }
+        .px-12 { padding-left: 3rem; padding-right: 3rem; }
+        .pr-4 { padding-right: 1rem; }
+        .pr-8 { padding-right: 2rem; }
+        .pl-4 { padding-left: 1rem; }
+        .pl-8 { padding-left: 2rem; }
+
+        /* Colors & Backgrounds */
+        .bg-black { background-color: #000; }
+        .bg-accent-1 { background-color: #fafafa; }
+        .bg-accent-7 { background-color: #333; }
+
+        .border { border-width: 1px; }
+        .border-t { border-top-width: 1px; }
+        .border-b { border-bottom-width: 1px; }
+        .border-black { border-color: #000; }
+        .border-accent-2 { border-color: #eaeaea; }
+        .border-accent-7 { border-color: #333; }
+        .rounded-full { border-radius: 9999px; }
+
+        /* Buttons / Links */
+        .hover\:bg-white:hover { background-color: #fff; }
+        .hover\:text-black:hover { color: #000; }
+        .hover\:text-success:hover { color: #0070f3; }
+        .hover\:text-cyan:hover { color: #79fff1; }
+        .hover\:underline:hover { text-decoration: underline; }
+
+        .transition-colors { transition: color 0.15s, background-color 0.15s, border-color 0.15s; }
+        .duration-200 { transition-duration: 0.2s; }
+
+        /* Shadows */
+        .shadow-sm { box-shadow: 0 5px 10px rgba(0,0,0,0.12); }
+        .hover\:shadow-md:hover { box-shadow: 0 8px 30px rgba(0,0,0,0.12); }
+
+        /* Utility */
+        .min-h-screen { min-height: 100vh; }
+
+        /* Footer */
+        .footer-buttons a {
+            display: inline-block;
+            font-weight: 700;
+            text-align: center;
+            padding: 0.75rem 3rem;
+            text-decoration: none;
+            margin: 0.75rem;
+        }
+
+        .footer-buttons a.bg-black { color: #fff; border: 1px solid #000; }
+        .footer-buttons a.bg-black:hover { background-color: #fff; color: #000; }
+
+        /* Images author */
+        .author-img { width: 3rem; height: 3rem; border-radius: 50%; margin-right: 1rem; }
+
+        /* Responsive adjustments */
+        @media(min-width: 768px) {
+            .md-flex-row { flex-direction: row; }
+            .md-justify-between { justify-content: space-between; }
+            .md-text-left { text-align: left; }
+            .md-text-7xl { font-size: 4.5rem; }
+            .md-text-8xl { font-size: 6.25rem; }
+            .md-grid { display: grid; }
+            .md-grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+            .md-gap-x-16 { column-gap: 4rem; }
+            .md-gap-y-32 { row-gap: 8rem; }
+            .md-mb-12 { margin-bottom: 3rem; }
+            .md-mb-16 { margin-bottom: 4rem; }
+            .md-pr-8 { padding-right: 2rem; }
+            .md-pl-8 { padding-left: 2rem; }
+        }
+
+        @media(min-width: 1024px) {
+            .lg-flex-row { flex-direction: row; }
+            .lg-w-1-2 { width: 50%; }
+            .lg-px-8 { padding-left: 2rem; padding-right: 2rem; }
+            .lg-pr-4 { padding-right: 1rem; }
+            .lg-pl-4 { padding-left: 1rem; }
+            .lg-text-5xl { font-size: 2.5rem; }
+            .lg-text-6xl { font-size: 2.75rem; }
+            .lg-text-8xl { font-size: 6.25rem; }
+        }
+    </style>
+
+</head>
+<body>
+    <div id="__next">
+        <div class="min-h-screen">
+            <div class="border-b bg-accent-1 border-accent-2">
+                <div class="container mx-auto px-5">
+                    <div class="py-2 text-center text-sm">
+                        The source code for this blog is<!-- -->
+                        <a href="https://github.com/vercel/next.js/tree/canary/examples/blog-starter" class="underline hover:text-success duration-200 transition-colors">available on GitHub</a>
+                        .
+                    </div>
+                </div>
+            </div>
+            <main>
+                <div class="container mx-auto px-5">
+                    <section class="flex-col md:flex-row flex items-center md:justify-between mt-16 mb-16 md:mb-12">
+                        <h1 class="text-6xl md:text-8xl font-bold tracking-tighter leading-tight md:pr-8">Blog.</h1>
+                        <h4 class="text-center md:text-left text-lg mt-5 md:pl-8">
+                            A statically generated blog example using<!-- -->
+                            <a href="https://nextjs.org/" class="underline hover:text-success duration-200 transition-colors">Next.js</a>
+                            <!-- -->
+                            and <!-- -->
+                            Markdown<!-- -->
+                            .
+                        </h4>
+                    </section>
+                    <section>
+                        <div class="mb-8 md:mb-16">
+                            <div class="sm:mx-0">
+                                <a aria-label="Dynamic Routing and Static Generation" href="/posts/dynamic-routing">
+                                    <div style="display:block;overflow:hidden;position:relative;box-sizing:border-box;margin:0">
+                                        <div style="display:block;box-sizing:border-box;padding-top:50%"></div>
+                                        <img alt="Cover Image for Dynamic Routing and Static Generation" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" decoding="async" class="shadow-sm hover:shadow-md transition-shadow duration-200" style="visibility:hidden;position:absolute;top:0;left:0;bottom:0;right:0;box-sizing:border-box;padding:0;border:none;margin:auto;display:block;width:0;height:0;min-width:100%;max-width:100%;min-height:100%;max-height:100%"/>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="md:grid md:grid-cols-2 md:gap-x-16 lg:gap-x-8 mb-20 md:mb-28">
+                            <div>
+                                <h3 class="mb-4 text-4xl lg:text-6xl leading-tight">
+                                    <a class="hover:underline" href="/posts/dynamic-routing">Dynamic Routing and Static Generation</a>
+                                </h3>
+                                <div class="mb-4 md:mb-0 text-lg">
+                                    <time dateTime="2020-03-16T05:35:07.322Z">March	16, 2020</time>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="text-lg leading-relaxed mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Praesent elementum facilisis leo vel fringilla est ullamcorper eget. At imperdiet dui accumsan sit amet nulla facilities morbi tempus.</p>
+                                <div class="flex items-center">
+                                    <img src="/assets/blog/authors/jj.jpeg" class="w-12 h-12 rounded-full mr-4" alt="JJ Kasper"/>
+                                    <div class="text-xl font-bold">JJ Kasper</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <section>
+                        <h2 class="mb-8 text-6xl md:text-7xl font-bold tracking-tighter leading-tight">More Stories</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 md:gap-x-16 lg:gap-x-32 gap-y-20 md:gap-y-32 mb-32">
+                            <div>
+                                <div class="mb-5">
+                                    <div class="sm:mx-0">
+                                        <a aria-label="Learn How to Pre-render Pages Using Static Generation with Next.js" href="/posts/hello-world">
+                                            <div style="display:block;overflow:hidden;position:relative;box-sizing:border-box;margin:0">
+                                                <div style="display:block;box-sizing:border-box;padding-top:50%"></div>
+                                                <img alt="Cover Image for Learn How to Pre-render Pages Using Static Generation with Next.js" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" decoding="async" class="shadow-sm hover:shadow-md transition-shadow duration-200" style="visibility:hidden;position:absolute;top:0;left:0;bottom:0;right:0;box-sizing:border-box;padding:0;border:none;margin:auto;display:block;width:0;height:0;min-width:100%;max-width:100%;min-height:100%;max-height:100%"/>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <h3 class="text-3xl mb-3 leading-snug">
+                                    <a class="hover:underline" href="/posts/hello-world">Learn How to Pre-render Pages Using Static Generation with Next.js</a>
+                                </h3>
+                                <div class="text-lg mb-4">
+                                    <time dateTime="2020-03-16T05:35:07.322Z">March	16, 2020</time>
+                                </div>
+                                <p class="text-lg leading-relaxed mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Praesent elementum facilisis leo vel fringilla est ullamcorper eget. At imperdiet dui accumsan sit amet nulla facilities morbi tempus.</p>
+                                <div class="flex items-center">
+                                    <img src="/assets/blog/authors/tim.jpeg" class="w-12 h-12 rounded-full mr-4" alt="Tim Neutkens"/>
+                                    <div class="text-xl font-bold">Tim Neutkens</div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="mb-5">
+                                    <div class="sm:mx-0">
+                                        <a aria-label="Preview Mode for Static Generation" href="/posts/preview">
+                                            <div style="display:block;overflow:hidden;position:relative;box-sizing:border-box;margin:0">
+                                                <div style="display:block;box-sizing:border-box;padding-top:50%"></div>
+                                                <img alt="Cover Image for Preview Mode for Static Generation" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" decoding="async" class="shadow-sm hover:shadow-md transition-shadow duration-200" style="visibility:hidden;position:absolute;top:0;left:0;bottom:0;right:0;box-sizing:border-box;padding:0;border:none;margin:auto;display:block;width:0;height:0;min-width:100%;max-width:100%;min-height:100%;max-height:100%"/>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
+                                <h3 class="text-3xl mb-3 leading-snug">
+                                    <a class="hover:underline" href="/posts/preview">Preview Mode for Static Generation</a>
+                                </h3>
+                                <div class="text-lg mb-4">
+                                    <time dateTime="2020-03-16T05:35:07.322Z">March	16, 2020</time>
+                                </div>
+                                <p class="text-lg leading-relaxed mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Praesent elementum facilisis leo vel fringilla est ullamcorper eget. At imperdiet dui accumsan sit amet nulla facilities morbi tempus.</p>
+                                <div class="flex items-center">
+                                    <img src="/assets/blog/authors/joe.jpeg" class="w-12 h-12 rounded-full mr-4" alt="Joe Haddad"/>
+                                    <div class="text-xl font-bold">Joe Haddad</div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+        </div>
+        <footer class="bg-accent-1 border-t border-accent-2">
+            <div class="container mx-auto px-5">
+                <div class="py-28 flex flex-col lg:flex-row items-center">
+                    <h3 class="text-4xl lg:text-5xl font-bold tracking-tighter leading-tight text-center lg:text-left mb-10 lg:mb-0 lg:pr-4 lg:w-1/2">Statically Generated with Next.js.</h3>
+                    <div class="flex flex-col lg:flex-row justify-center items-center lg:pl-4 lg:w-1/2">
+                        <a href="https://nextjs.org/docs/basic-features/pages" class="mx-3 bg-black hover:bg-white hover:text-black border border-black text-white font-bold py-3 px-12 lg:px-8 duration-200 transition-colors mb-6 lg:mb-0">Read Documentation</a>
+                        <a href="https://github.com/vercel/next.js/tree/canary/examples/blog-starter" class="mx-3 font-bold hover:underline">View on GitHub</a>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+    <script id="__NEXT_DATA__" type="application/json">{"props":{"pageProps":{"allPosts":[{"title":"Dynamic Routing and Static Generation","date":"2020-03-16T05:35:07.322Z","slug":"dynamic-routing","author":{"name":"JJ Kasper","picture":"/assets/blog/authors/jj.jpeg"},"coverImage":"/assets/blog/dynamic-routing/cover.jpg","excerpt":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Praesent elementum facilisis leo vel fringilla est ullamcorper eget. At imperdiet dui accumsan sit amet nulla facilities morbi tempus."},{"title":"Learn How to Pre-render Pages Using Static Generation with Next.js","date":"2020-03-16T05:35:07.322Z","slug":"hello-world","author":{"name":"Tim Neutkens","picture":"/assets/blog/authors/tim.jpeg"},"coverImage":"/assets/blog/hello-world/cover.jpg","excerpt":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Praesent elementum facilisis leo vel fringilla est ullamcorper eget. At imperdiet dui accumsan sit amet nulla facilities morbi tempus."},{"title":"Preview Mode for Static Generation","date":"2020-03-16T05:35:07.322Z","slug":"preview","author":{"name":"Joe Haddad","picture":"/assets/blog/authors/joe.jpeg"},"coverImage":"/assets/blog/preview/cover.jpg","excerpt":"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Praesent elementum facilisis leo vel fringilla est ullamcorper eget. At imperdiet dui accumsan sit amet nulla facilities morbi tempus."}]},"__N_SSG":true},"page":"/","query":{},"buildId":"0D8nS8VGW9uLCSHekljh9","runtimeConfig":{},"nextExport":false,"isFallback":false,"gsp":true}</script>
+</body>
+</html>
