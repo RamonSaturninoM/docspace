@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documents | Docspace Portal</title>
+  <link rel="stylesheet" href="styles/documents.css">
+</head>
+<body>
+
+  <header>
+    <h1>Docspace Portal</h1>
+    <div class="top-nav">
+      <input type="text" placeholder="Search documents...">
+      <button>Search</button>
+      <nav>
+        <a href="portal.html">Home</a>
+        <a href="documents.html" class="active">Documents</a>
+        <a href="departments.html">Departments</a>
+        <a href="#">Profile</a>
+        <a href="login-signup.html">Logout</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="main-container">
+
+    <aside class="sidebar">
+      <div class="chat-box">
+        <h2>AI Assistant</h2>
+        <p>Ask me to find files, summarize documents, or locate department resources.</p>
+      </div>
+
+      <div class="shortcuts">
+        <h2>Shortcuts</h2>
+        <ul>
+          <li><a href="#">My Drive</a></li>
+          <li><a href="#">Shared with me</a></li>
+          <li><a href="#">Recent</a></li>
+          <li><a href="#">Starred</a></li>
+          <li><a href="#">Trash</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <section class="content">
+
+      <div class="documents-header">
+        <div>
+          <h2>All Documents</h2>
+          <p class="muted">Browse and manage documents across departments, similar to a shared drive.</p>
+        </div>
+
+        <div class="documents-actions">
+          <button class="btn-secondary">Upload</button>
+          <button class="btn-primary">+ New Document</button>
+        </div>
+      </div>
+
+      <div class="documents-toolbar">
+        <div class="toolbar-left">
+          <span class="muted">Showing</span>
+          <select>
+            <option>All documents</option>
+            <option>My documents</option>
+            <option>Pinned only</option>
+            <option>Shared with me</option>
+          </select>
+
+          <select>
+            <option>All types</option>
+            <option>PDF</option>
+            <option>Word / Docs</option>
+            <option>Spreadsheet</option>
+            <option>Presentation</option>
+          </select>
+        </div>
+
+        <div class="toolbar-right">
+          <span>Sort by</span>
+          <select>
+            <option>Recently opened</option>
+            <option>Recently modified</option>
+            <option>Name (A–Z)</option>
+            <option>Owner</option>
+          </select>
+
+          <div class="view-toggle">
+            <button class="active">Grid</button>
+            <button>List</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- GRID VIEW (Drive-like cards) -->
+      <div class="documents-grid">
+        <div class="document-card" onclick="window.location.href='documentView.html'">
+          <div class="doc-icon">P</div>
+          <h3>Company Policy 2026.pdf</h3>
+          <div class="meta">HR • Updated Jan 10, 2026 • 2.4 MB</div>
+          <div class="labels">
+            <span class="label-pill">Pinned</span>
+            <span class="label-pill">HR</span>
+          </div>
+        </div>
+
+        <div class="document-card" onclick="window.location.href='documentView.html'">
+          <div class="doc-icon">Q</div>
+          <h3>Quarterly Report Q1 2026.docx</h3>
+          <div class="meta">Finance • Updated Feb 2, 2026 • 1.8 MB</div>
+          <div class="labels">
+            <span class="label-pill">Finance</span>
+          </div>
+        </div>
+
+        <div class="document-card" onclick="window.location.href='documentView.html'">
+          <div class="doc-icon">H</div>
+          <h3>HR Guidelines - Updated.docx</h3>
+          <div class="meta">HR • Updated Jan 3, 2026 • 540 KB</div>
+          <div class="labels">
+            <span class="label-pill">HR</span>
+          </div>
+        </div>
+
+        <div class="document-card" onclick="window.location.href='documentView.html'">
+          <div class="doc-icon">M</div>
+          <h3>Marketing Campaign Brief 2026.pdf</h3>
+          <div class="meta">Marketing • Updated Jan 28, 2026 • 3.1 MB</div>
+          <div class="labels">
+            <span class="label-pill">Marketing</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- LIST VIEW (Drive-like table) -->
+      <div class="documents-list">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Owner</th>
+              <th>Department</th>
+              <th>Last opened</th>
+              <th>Last modified</th>
+              <th>Size</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="doc-name-cell">
+                <span class="small-icon">P</span>
+                Company Policy 2026.pdf
+              </td>
+              <td>Jane Doe</td>
+              <td>HR</td>
+              <td>2 hours ago</td>
+              <td>Jan 10, 2026</td>
+              <td>2.4 MB</td>
+              <td class="actions">
+                <a href="documentView.html">Open</a>
+                <a href="#">Download</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="doc-name-cell">
+                <span class="small-icon">Q</span>
+                Quarterly Report Q1 2026.docx
+              </td>
+              <td>John Smith</td>
+              <td>Finance</td>
+              <td>Yesterday</td>
+              <td>Feb 2, 2026</td>
+              <td>1.8 MB</td>
+              <td class="actions">
+                <a href="documentView.html">Open</a>
+                <a href="#">Download</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="doc-name-cell">
+                <span class="small-icon">H</span>
+                HR Guidelines - Updated.docx
+              </td>
+              <td>Alice Brown</td>
+              <td>HR</td>
+              <td>3 days ago</td>
+              <td>Jan 3, 2026</td>
+              <td>540 KB</td>
+              <td class="actions">
+                <a href="documentView.html">Open</a>
+                <a href="#">Download</a>
+              </td>
+            </tr>
+            <tr>
+              <td class="doc-name-cell">
+                <span class="small-icon">M</span>
+                Marketing Campaign Brief 2026.pdf
+              </td>
+              <td>Maria Garcia</td>
+              <td>Marketing</td>
+              <td>Last week</td>
+              <td>Jan 28, 2026</td>
+              <td>3.1 MB</td>
+              <td class="actions">
+                <a href="documentView.html">Open</a>
+                <a href="#">Download</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+  </div>
+
+</body>
+</html>
+
+
