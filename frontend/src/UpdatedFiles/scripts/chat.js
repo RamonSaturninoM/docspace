@@ -3,6 +3,11 @@ const composer = document.getElementById("composer");
 const promptInput = document.getElementById("prompt");
 const status = document.getElementById("status");
 const clearBtn = document.getElementById("clear");
+const sendBtn = composer.querySelector("button[type='submit']");
+const API_BASE =
+  localStorage.getItem("DOCSPACE_API_BASE") ||
+  window.DOCSPACE_API_BASE ||
+  "http://127.0.0.1:8000";
 
 const addMessage = (text, role) => {
   const wrapper = document.createElement("div");
@@ -18,6 +23,33 @@ const addMessage = (text, role) => {
 const setStatus = (text, ok = true) => {
   status.textContent = text;
   status.style.background = ok ? "rgba(255, 255, 255, 0.18)" : "rgba(255, 123, 58, 0.4)";
+};
+
+const setComposerBusy = (busy) => {
+  promptInput.disabled = busy;
+  sendBtn.disabled = busy;
+  sendBtn.textContent = busy ? "Sending..." : "Send";
+};
+
+const addThinkingMessage = () => {
+  const wrapper = document.createElement("div");
+  wrapper.className = "message assistant thinking";
+  wrapper.id = "thinkingMessage";
+  wrapper.innerHTML = `
+    <div class="bubble">
+      <span class="thinking-label">Thinking</span>
+      <span class="thinking-dots" aria-hidden="true">
+        <span></span><span></span><span></span>
+      </span>
+    </div>
+  `;
+  messages.appendChild(wrapper);
+  messages.scrollTop = messages.scrollHeight;
+};
+
+const removeThinkingMessage = () => {
+  const thinking = document.getElementById("thinkingMessage");
+  if (thinking) thinking.remove();
 };
 
 clearBtn.addEventListener("click", () => {
@@ -36,9 +68,11 @@ composer.addEventListener("submit", async (event) => {
   addMessage(text, "user");
   promptInput.value = "";
   setStatus("Thinking…");
+  setComposerBusy(true);
+  addThinkingMessage();
 
   try {
-    const response = await fetch("/api/chat", {
+    const response = await fetch(`${API_BASE}/api/chat/respond`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ message: text }),
@@ -50,10 +84,18 @@ composer.addEventListener("submit", async (event) => {
     }
 
     const payload = await response.json();
+    removeThinkingMessage();
     addMessage(payload.reply || "No response received.", "assistant");
     setStatus("Connected");
   } catch (error) {
-    addMessage("Unable to reach the chat service. Check that the backend is running.", "system");
+    removeThinkingMessage();
+    addMessage(
+      `Unable to reach chat service at ${API_BASE}. ${error.message || ""}`.trim(),
+      "system"
+    );
     setStatus("Offline", false);
+  } finally {
+    setComposerBusy(false);
+    promptInput.focus();
   }
 });

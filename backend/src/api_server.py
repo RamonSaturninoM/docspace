@@ -13,12 +13,43 @@ from pathlib import Path
 from typing import List
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
-from ingestion_engine import ingest
+from chat_engine import chat_with_gemini
+
+try:
+    from ingestion_engine import ingest
+except ModuleNotFoundError:
+    ingest = None
 
 app = FastAPI(title="Docspace Ingestion API", version="0.1")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
+def load_local_env(env_path: Path) -> None:
+    if not env_path.exists():
+        return
+
+    for raw in env_path.read_text(encoding="utf-8").splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        if not key:
+            continue
+        os.environ.setdefault(key, value.strip().strip("\"'"))
+
+
+load_local_env(Path(__file__).resolve().parents[2] / ".env")
 
 
 class ChatRequest(BaseModel):
@@ -27,6 +58,12 @@ class ChatRequest(BaseModel):
 
 @app.post("/api/ingest")
 async def ingest_files(files: List[UploadFile] = File(...)) -> JSONResponse:
+    if ingest is None:
+        raise HTTPException(
+            status_code=503,
+            detail="Ingestion is temporarily unavailable: ingestion_engine.py is missing.",
+        )
+
     if not files:
         raise HTTPException(status_code=400, detail="No files provided")
 
@@ -72,9 +109,20 @@ def healthz() -> JSONResponse:
 
 @app.post("/api/chat")
 def chat(request: ChatRequest) -> JSONResponse:
-    # Placeholder: replace with real RAG or LLM pipeline.
-    reply = (
-        "Chat backend is online. You said: "
-        f"\"{request.message.strip()}\". Wire this to your RAG pipeline next."
-    )
+    message = request.message.strip()
+    if not message:
+        raise HTTPException(status_code=400, detail="Message cannot be empty")
+
+    try:
+        reply = chat_with_gemini(message)
+    except ValueError as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+    except RuntimeError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
     return JSONResponse({"reply": reply})
+
+
+@app.post("/api/chat/respond")
+def chat_respond(request: ChatRequest) -> JSONResponse:
+    return chat(request)
