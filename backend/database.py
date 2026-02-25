@@ -6,7 +6,6 @@ from passlib.context import CryptContext
 DATABASE_URL = "sqlite:///docspace.db"
 engine = create_engine(DATABASE_URL, echo=False)
 
-
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 
@@ -28,6 +27,7 @@ class Document(SQLModel, table=True):
     file_path: str
     department: str
     role: str
+    pinned: bool = Field(default=False)
     uploaded_at: datetime = Field(default_factory=datetime.utcnow)
 
 
@@ -55,7 +55,13 @@ def add_document(filename: str, department: str, role: str) -> Document:
 
 
 def add_uploaded_document(filename: str, file_path: str, department: str, role: str) -> Document:
-    doc = Document(filename=filename, file_path=file_path, department=department, role=role)
+    doc = Document(
+        filename=filename,
+        file_path=file_path,
+        department=department,
+        role=role,
+        pinned=False,
+    )
     with Session(engine) as session:
         session.add(doc)
         session.commit()
@@ -73,6 +79,18 @@ def get_document_by_id(doc_id: int) -> Optional[Document]:
     with Session(engine) as session:
         doc = session.get(Document, doc_id)
     return doc
+
+
+def set_document_pinned(doc_id: int, pinned: bool) -> Optional[Document]:
+    with Session(engine) as session:
+        doc = session.get(Document, doc_id)
+        if doc is None:
+            return None
+        doc.pinned = pinned
+        session.add(doc)
+        session.commit()
+        session.refresh(doc)
+        return doc
 
 
 def delete_document_by_id(doc_id: int) -> bool:

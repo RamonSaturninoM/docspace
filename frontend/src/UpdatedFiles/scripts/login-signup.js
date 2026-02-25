@@ -40,11 +40,13 @@ async function apiPost(path, bodyObj) {
   try {
     data = await res.json();
   } catch {
-
+ 
   }
 
   if (!res.ok) {
-    const msg = (data && (data.detail || data.message)) || `Request failed (${res.status})`;
+    const msg =
+      (data && (data.detail || data.message)) ||
+      `Request failed (${res.status})`;
     throw new Error(msg);
   }
 
@@ -70,9 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         showMessage(loginForm, data.message || "Login successful", false);
 
+        // ALWAYS redirect to documents page for testing
         setTimeout(() => {
-          window.location.href = "dashboard.html";
-        }, 600);
+          window.location.href = "documents.html";
+        }, 300);
       } catch (err) {
         showMessage(loginForm, err.message, true);
       }
