@@ -25,19 +25,30 @@ class Document(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     filename: str
     file_path: str
+
+    # who uploaded it
+    owner_id: int = Field(index=True)
+
     department: str
     role: str
     pinned: bool = Field(default=False)
+
+    # file size
+    size_bytes: int = Field(default=0)
+
     uploaded_at: datetime = Field(default_factory=datetime.utcnow)
+
+    # last opened timestamp (None until opened)
+    last_opened_at: Optional[datetime] = Field(default=None)
 
 
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     full_name: str
-    email: str = Field(index=True, unique=True)  # company email
+    email: str = Field(index=True, unique=True)
     hashed_password: str
     department: str
-    role: str = Field(default="employee")  # auto-set for now
+    role: str = Field(default="employee")
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
@@ -45,8 +56,16 @@ def create_db_and_tables() -> None:
     SQLModel.metadata.create_all(engine)
 
 
-def add_document(filename: str, department: str, role: str) -> Document:
-    doc = Document(filename=filename, department=department, role=role, file_path="")
+def add_document(filename: str, department: str, role: str, owner_id: int) -> Document:
+    doc = Document(
+        filename=filename,
+        department=department,
+        role=role,
+        file_path="",
+        owner_id=owner_id,
+        size_bytes=0,
+        last_opened_at=None,
+    )
     with Session(engine) as session:
         session.add(doc)
         session.commit()
@@ -54,13 +73,23 @@ def add_document(filename: str, department: str, role: str) -> Document:
     return doc
 
 
-def add_uploaded_document(filename: str, file_path: str, department: str, role: str) -> Document:
+def add_uploaded_document(
+    filename: str,
+    file_path: str,
+    department: str,
+    role: str,
+    owner_id: int,
+    size_bytes: int,
+) -> Document:
     doc = Document(
         filename=filename,
         file_path=file_path,
         department=department,
         role=role,
+        owner_id=owner_id,
         pinned=False,
+        size_bytes=size_bytes,
+        last_opened_at=None,
     )
     with Session(engine) as session:
         session.add(doc)
@@ -79,6 +108,17 @@ def get_document_by_id(doc_id: int) -> Optional[Document]:
     with Session(engine) as session:
         doc = session.get(Document, doc_id)
     return doc
+
+
+def touch_document_opened(doc_id: int) -> None:
+    """Update last_opened_at to now."""
+    with Session(engine) as session:
+        doc = session.get(Document, doc_id)
+        if doc is None:
+            return
+        doc.last_opened_at = datetime.utcnow()
+        session.add(doc)
+        session.commit()
 
 
 def set_document_pinned(doc_id: int, pinned: bool) -> Optional[Document]:
@@ -122,3 +162,7 @@ def get_user_by_email(session: Session, email: str) -> Optional[User]:
     statement = select(User).where(User.email == email)
     results = session.exec(statement)
     return results.first()
+
+
+def get_user_by_id(session: Session, user_id: int) -> Optional[User]:
+    return session.get(User, user_id)

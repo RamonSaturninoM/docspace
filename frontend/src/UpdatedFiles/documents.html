@@ -11,8 +11,8 @@
   <header>
     <h1>Docspace Portal</h1>
     <div class="top-nav">
-      <input type="text" placeholder="Search documents...">
-      <button>Search</button>
+      <input type="text" id="searchInput" placeholder="Search documents...">
+      <button id="searchBtn">Search</button>
       <nav>
         <a href="portal.html">Home</a>
         <a href="documents.html" class="active">Documents</a>
@@ -92,47 +92,12 @@
         </div>
       </div>
 
-      <!-- GRID VIEW (Drive-like cards) -->
-      <div class="documents-grid">
-        <div class="document-card" onclick="window.location.href='documentView.html'">
-          <div class="doc-icon">P</div>
-          <h3>Company Policy 2026.pdf</h3>
-          <div class="meta">HR • Updated Jan 10, 2026 • 2.4 MB</div>
-          <div class="labels">
-            <span class="label-pill">Pinned</span>
-            <span class="label-pill">HR</span>
-          </div>
-        </div>
-
-        <div class="document-card" onclick="window.location.href='documentView.html'">
-          <div class="doc-icon">Q</div>
-          <h3>Quarterly Report Q1 2026.docx</h3>
-          <div class="meta">Finance • Updated Feb 2, 2026 • 1.8 MB</div>
-          <div class="labels">
-            <span class="label-pill">Finance</span>
-          </div>
-        </div>
-
-        <div class="document-card" onclick="window.location.href='documentView.html'">
-          <div class="doc-icon">H</div>
-          <h3>HR Guidelines - Updated.docx</h3>
-          <div class="meta">HR • Updated Jan 3, 2026 • 540 KB</div>
-          <div class="labels">
-            <span class="label-pill">HR</span>
-          </div>
-        </div>
-
-        <div class="document-card" onclick="window.location.href='documentView.html'">
-          <div class="doc-icon">M</div>
-          <h3>Marketing Campaign Brief 2026.pdf</h3>
-          <div class="meta">Marketing • Updated Jan 28, 2026 • 3.1 MB</div>
-          <div class="labels">
-            <span class="label-pill">Marketing</span>
-          </div>
-        </div>
+      <!-- GRID VIEW -->
+      <div class="documents-grid" id="documentsGrid">
+        <!-- Documents will be inserted here by JS -->
       </div>
 
-      <!-- LIST VIEW (Drive-like table) -->
+      <!-- LIST VIEW -->
       <div class="documents-list">
         <table>
           <thead>
@@ -146,67 +111,8 @@
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody>
-            <tr>
-              <td class="doc-name-cell">
-                <span class="small-icon">P</span>
-                Company Policy 2026.pdf
-              </td>
-              <td>Jane Doe</td>
-              <td>HR</td>
-              <td>2 hours ago</td>
-              <td>Jan 10, 2026</td>
-              <td>2.4 MB</td>
-              <td class="actions">
-                <a href="documentView.html">Open</a>
-                <a href="#">Download</a>
-              </td>
-            </tr>
-            <tr>
-              <td class="doc-name-cell">
-                <span class="small-icon">Q</span>
-                Quarterly Report Q1 2026.docx
-              </td>
-              <td>John Smith</td>
-              <td>Finance</td>
-              <td>Yesterday</td>
-              <td>Feb 2, 2026</td>
-              <td>1.8 MB</td>
-              <td class="actions">
-                <a href="documentView.html">Open</a>
-                <a href="#">Download</a>
-              </td>
-            </tr>
-            <tr>
-              <td class="doc-name-cell">
-                <span class="small-icon">H</span>
-                HR Guidelines - Updated.docx
-              </td>
-              <td>Alice Brown</td>
-              <td>HR</td>
-              <td>3 days ago</td>
-              <td>Jan 3, 2026</td>
-              <td>540 KB</td>
-              <td class="actions">
-                <a href="documentView.html">Open</a>
-                <a href="#">Download</a>
-              </td>
-            </tr>
-            <tr>
-              <td class="doc-name-cell">
-                <span class="small-icon">M</span>
-                Marketing Campaign Brief 2026.pdf
-              </td>
-              <td>Maria Garcia</td>
-              <td>Marketing</td>
-              <td>Last week</td>
-              <td>Jan 28, 2026</td>
-              <td>3.1 MB</td>
-              <td class="actions">
-                <a href="documentView.html">Open</a>
-                <a href="#">Download</a>
-              </td>
-            </tr>
+          <tbody id="documentsTableBody">
+            <!-- Documents will be inserted here by JS -->
           </tbody>
         </table>
       </div>
@@ -214,7 +120,8 @@
     </section>
   </div>
 
+  <!-- CONNECT DOCUMENTS SCRIPT -->
+  <script src="scripts/documents.js"></script>
+
 </body>
 </html>
-
-

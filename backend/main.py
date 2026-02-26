@@ -21,6 +21,8 @@ from database import (
     create_user,
     get_user_by_email,
     verify_password,
+    get_user_by_id,
+    touch_document_opened,  
 )
 
 app = FastAPI()
@@ -85,27 +87,27 @@ def health():
     return {"status": "ok"}
 
 
-# Documents
+# DOCUMENTS
+
 @app.get("/documents")
 def get_documents(
-    view: str = "all",          
-    dtype: str = "all",         
-    sort: str = "modified",     
+    view: str = "all",
+    dtype: str = "all",
+    sort: str = "modified",
     current_user=Depends(get_current_user),
 ):
     docs = list_documents()
 
+    # Filters
     view = (view or "all").lower()
     if view == "my":
-        user_dept = (current_user.department or "").lower()
-        docs = [d for d in docs if (d.department or "").lower() == user_dept]
+        docs = [d for d in docs if d.owner_id == current_user.id]
     elif view == "pinned":
-        docs = [d for d in docs if getattr(d, "pinned", False) is True]
+        docs = [d for d in docs if d.pinned is True]
     elif view == "shared":
         docs = []
-    else:
-        pass
 
+    # dtype filter (keep your existing backend support)
     dtype = (dtype or "all").lower()
 
     def ext(name: str) -> str:
@@ -124,17 +126,41 @@ def get_documents(
         elif dtype == "slides":
             docs = [d for d in docs if ext(d.filename) in {"ppt", "pptx"}]
 
+    # Sorting
     sort = (sort or "modified").lower()
     if sort == "name":
         docs.sort(key=lambda d: (d.filename or "").lower())
     elif sort == "owner":
-        docs.sort(key=lambda d: (d.filename or "").lower())
+        docs.sort(key=lambda d: d.owner_id)
     elif sort == "opened":
-        docs.sort(key=lambda d: d.uploaded_at, reverse=True)
+        # newest last opened first; None goes last
+        docs.sort(key=lambda d: (d.last_opened_at is None, d.last_opened_at), reverse=False)
+        docs.reverse()
     else:
         docs.sort(key=lambda d: d.uploaded_at, reverse=True)
 
-    return docs
+    # Attach owner_name + size + last_opened
+    result = []
+    with Session(engine) as session:
+        for d in docs:
+            owner = get_user_by_id(session, d.owner_id)
+            result.append(
+                {
+                    "id": d.id,
+                    "filename": d.filename,
+                    "file_path": d.file_path,
+                    "owner_id": d.owner_id,
+                    "owner_name": owner.full_name if owner else "Unknown",
+                    "department": d.department,
+                    "role": d.role,
+                    "pinned": d.pinned,
+                    "size_bytes": d.size_bytes,
+                    "uploaded_at": d.uploaded_at,
+                    "last_opened_at": d.last_opened_at,
+                }
+            )
+
+    return result
 
 
 @app.get("/documents/{doc_id}")
@@ -153,7 +179,6 @@ def delete_document(doc_id: int, current_user=Depends(get_current_user)):
     return {"deleted": True, "id": doc_id}
 
 
-# Pin / Unpin
 @app.post("/documents/{doc_id}/pin")
 def pin_document(doc_id: int, current_user=Depends(get_current_user)):
     doc = set_document_pinned(doc_id, True)
@@ -170,48 +195,6 @@ def unpin_document(doc_id: int, current_user=Depends(get_current_user)):
     return {"id": doc.id, "pinned": doc.pinned}
 
 
-# Serve the stored file for viewing 
-@app.get("/documents/{doc_id}/file")
-def get_document_file(doc_id: int, current_user=Depends(get_current_user)):
-    doc = get_document_by_id(doc_id)
-    if doc is None:
-        raise HTTPException(status_code=404, detail="Document not found")
-
-    file_path = Path(doc.file_path)
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="Stored file missing on server")
-
-    media_type, _ = mimetypes.guess_type(doc.filename)
-    if media_type is None:
-        media_type = "application/octet-stream"
-
-    headers = {"Content-Disposition": f'inline; filename="{doc.filename}"'}
-
-    return FileResponse(
-        path=str(file_path),
-        media_type=media_type,
-        headers=headers,
-    )
-
-
-# Download the stored file 
-@app.get("/documents/{doc_id}/download")
-def download_document(doc_id: int, current_user=Depends(get_current_user)):
-    doc = get_document_by_id(doc_id)
-    if doc is None:
-        raise HTTPException(status_code=404, detail="Document not found")
-
-    file_path = Path(doc.file_path)
-    if not file_path.exists():
-        raise HTTPException(status_code=404, detail="Stored file missing on server")
-
-    return FileResponse(
-        path=str(file_path),
-        filename=doc.filename,
-        media_type="application/octet-stream",
-    )
-
-
 @app.post("/documents/upload")
 async def upload_document(
     current_user=Depends(get_current_user),
@@ -219,11 +202,9 @@ async def upload_document(
     department: str = Form(...),
     role: str = Form(...),
 ):
-    # store files in an absolute folder inside backend/
     storage_dir = (Path(__file__).parent / "storage").resolve()
     storage_dir.mkdir(exist_ok=True)
 
-    # Unique stored filename prevents overwrites
     safe_name = file.filename.replace("/", "_").replace("\\", "_")
     stored_name = f"{uuid.uuid4().hex}_{safe_name}"
     save_path = (storage_dir / stored_name).resolve()
@@ -232,16 +213,66 @@ async def upload_document(
     with open(save_path, "wb") as f:
         f.write(contents)
 
+    size_bytes = len(contents)
+
     doc = add_uploaded_document(
-        filename=file.filename,          
-        file_path=str(save_path),        
+        filename=file.filename,
+        file_path=str(save_path),
         department=department,
         role=role,
+        owner_id=current_user.id,
+        size_bytes=size_bytes,  
     )
+
     return doc
 
 
-# Auth
+@app.get("/documents/{doc_id}/file")
+def get_document_file(doc_id: int, current_user=Depends(get_current_user)):
+    # update last opened
+    touch_document_opened(doc_id)
+
+    doc = get_document_by_id(doc_id)
+    if doc is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    file_path = Path(doc.file_path)
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Stored file missing")
+
+    media_type, _ = mimetypes.guess_type(doc.filename)
+    if media_type is None:
+        media_type = "application/octet-stream"
+
+    return FileResponse(
+        path=str(file_path),
+        media_type=media_type,
+        headers={"Content-Disposition": f'inline; filename="{doc.filename}"'},
+    )
+
+
+@app.get("/documents/{doc_id}/download")
+def download_document(doc_id: int, current_user=Depends(get_current_user)):
+    # update last opened
+    touch_document_opened(doc_id)
+
+    doc = get_document_by_id(doc_id)
+    if doc is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    file_path = Path(doc.file_path)
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="Stored file missing")
+
+    return FileResponse(
+        path=str(file_path),
+        filename=doc.filename,
+        media_type="application/octet-stream",
+    )
+
+
+# AUTH
+
 class SignupRequest(BaseModel):
     full_name: str
     email: str
@@ -261,16 +292,13 @@ def signup(request: SignupRequest):
         if existing_user:
             raise HTTPException(status_code=400, detail="User already exists")
 
-        try:
-            user = create_user(
-                session=session,
-                full_name=request.full_name,
-                email=request.email,
-                password=request.password,
-                department=request.department,
-            )
-        except ValueError as e:
-            raise HTTPException(status_code=400, detail=str(e))
+        user = create_user(
+            session=session,
+            full_name=request.full_name,
+            email=request.email,
+            password=request.password,
+            department=request.department,
+        )
 
         return {
             "id": user.id,

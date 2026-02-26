@@ -9,6 +9,7 @@ function getToken() {
 const pinBtn = document.getElementById("pinBtn");
 const docTitleEl = document.getElementById("docTitle");
 const docFrame = document.getElementById("docFrame");
+const viewerPlaceholder = document.getElementById("viewerPlaceholder");
 
 // Comments
 const commentForm = document.getElementById("commentForm");
@@ -19,6 +20,8 @@ const commentsList = document.getElementById("commentsList");
 let currentDocId = null;
 let isPinned = false;
 
+// Track iframe object URL so we can revoke it
+let currentObjectUrl = null;
 
 if (commentForm && commentInput && commentsList) {
   commentForm.addEventListener("submit", (e) => {
@@ -35,7 +38,6 @@ if (commentForm && commentInput && commentsList) {
     commentsList.scrollTop = commentsList.scrollHeight;
   });
 }
-
 
 function updatePinButtonText() {
   if (!pinBtn) return;
@@ -55,6 +57,14 @@ async function fetchPinnedState() {
   const doc = await res.json();
   isPinned = !!doc.pinned;
   updatePinButtonText();
+
+  // If title not provided in URL, set it from backend response
+  if (docTitleEl && doc && doc.filename) {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.get("doc")) {
+      docTitleEl.textContent = doc.filename;
+    }
+  }
 }
 
 async function setPinnedOnServer(pinned) {
@@ -68,10 +78,13 @@ async function setPinnedOnServer(pinned) {
 
   const endpoint = pinned ? "pin" : "unpin";
 
-  const res = await fetch(`${API_BASE}/documents/${encodeURIComponent(currentDocId)}/${endpoint}`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await fetch(
+    `${API_BASE}/documents/${encodeURIComponent(currentDocId)}/${endpoint}`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
 
   if (!res.ok) {
     const text = await res.text().catch(() => "");
@@ -112,13 +125,17 @@ async function loadDocumentIntoViewer() {
   const docId = params.get("id");
   if (!docId) {
     console.warn("Missing ?id= in URL");
+    if (viewerPlaceholder) viewerPlaceholder.textContent = "Missing document id in URL.";
     return;
   }
 
   currentDocId = docId;
 
-  await fetchPinnedState();
+  // Show placeholder while loading
+  if (viewerPlaceholder) viewerPlaceholder.style.display = "";
+  if (docFrame) docFrame.style.display = "";
 
+  await fetchPinnedState();
 
   try {
     const res = await fetch(`${API_BASE}/documents/${encodeURIComponent(docId)}/file`, {
@@ -131,16 +148,34 @@ async function loadDocumentIntoViewer() {
     }
 
     const blob = await res.blob();
+
+    if (currentObjectUrl) {
+      URL.revokeObjectURL(currentObjectUrl);
+      currentObjectUrl = null;
+    }
+
     const objectUrl = URL.createObjectURL(blob);
+    currentObjectUrl = objectUrl;
 
     if (docFrame) {
-      // ensure iframe is visible
       docFrame.style.width = "100%";
       docFrame.style.minHeight = "70vh";
+
+      // Hide placeholder once iframe actually loads the blob URL
+      docFrame.onload = () => {
+        if (viewerPlaceholder) viewerPlaceholder.style.display = "none";
+      };
+
       docFrame.src = objectUrl;
+    } else {
+      if (viewerPlaceholder) viewerPlaceholder.textContent = "Viewer iframe not found on page.";
     }
   } catch (err) {
     console.error(err);
+    if (viewerPlaceholder) {
+      viewerPlaceholder.textContent = "Error loading document. Please try again.";
+      viewerPlaceholder.style.display = "";
+    }
     alert("Error loading document viewer");
   }
 }
@@ -151,10 +186,17 @@ function escapeHtml(str) {
   return String(str)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
-    .replaceAll(">", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
 
 document.addEventListener("DOMContentLoaded", loadDocumentIntoViewer);
+
+// Cleanup on leaving page
+window.addEventListener("beforeunload", () => {
+  if (currentObjectUrl) {
+    URL.revokeObjectURL(currentObjectUrl);
+    currentObjectUrl = null;
+  }
+});
