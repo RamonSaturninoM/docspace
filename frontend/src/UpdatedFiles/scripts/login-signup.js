@@ -40,7 +40,7 @@ async function apiPost(path, bodyObj) {
   try {
     data = await res.json();
   } catch {
- 
+    // ignore non-json response
   }
 
   if (!res.ok) {
@@ -53,9 +53,50 @@ async function apiPost(path, bodyObj) {
   return data;
 }
 
+async function loadDepartmentsForSignup() {
+  const departmentSelect = document.getElementById("department");
+  if (!departmentSelect) return;
+
+  try {
+    departmentSelect.innerHTML = `<option value="">Loading departments...</option>`;
+
+    const res = await fetch(`${API_BASE}/departments`);
+
+    if (!res.ok) {
+      throw new Error(`Failed to load departments (${res.status})`);
+    }
+
+    const departments = await res.json();
+
+    departmentSelect.innerHTML = "";
+
+    if (!Array.isArray(departments) || departments.length === 0) {
+      departmentSelect.innerHTML = `<option value="">No departments available</option>`;
+      return;
+    }
+
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = "Select a department";
+    departmentSelect.appendChild(placeholder);
+
+    departments.forEach((dept) => {
+      const option = document.createElement("option");
+      option.value = dept.name;
+      option.textContent = dept.name;
+      departmentSelect.appendChild(option);
+    });
+  } catch (err) {
+    console.error(err);
+    departmentSelect.innerHTML = `<option value="">Could not load departments</option>`;
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const loginForm = document.getElementById("loginFormElement");
   const signupForm = document.getElementById("signupFormElement");
+
+  loadDepartmentsForSignup();
 
   if (loginForm) {
     loginForm.addEventListener("submit", async function (e) {
@@ -72,7 +113,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         showMessage(loginForm, data.message || "Login successful", false);
 
-        // ALWAYS redirect to documents page for testing
         setTimeout(() => {
           window.location.href = "documents.html";
         }, 300);
@@ -88,8 +128,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       const full_name = document.getElementById("name").value.trim();
       const email = document.getElementById("signupEmail").value.trim();
-      const department = document.getElementById("department").value.trim();
+      const department = document.getElementById("department").value;
       const password = document.getElementById("signupPassword").value;
+
+      if (!department) {
+        showMessage(signupForm, "Please select a department", true);
+        return;
+      }
 
       try {
         await apiPost("/auth/signup", { full_name, email, password, department });

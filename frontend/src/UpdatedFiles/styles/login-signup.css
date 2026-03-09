@@ -42,7 +42,8 @@ label {
     color: #d1d5db;
 }
 
-input {
+input,
+select {
     width: 100%;
     padding: 11px;
     border-radius: 6px;
@@ -51,13 +52,22 @@ input {
     background-color: #020617;
     color: #f9fafb;
     transition: all 0.2s ease;
+    box-sizing: border-box;
 }
 
 input::placeholder {
     color: #6b7280;
 }
 
-input:focus {
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+}
+
+input:focus,
+select:focus {
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 1px #3b82f6;

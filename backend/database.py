@@ -21,6 +21,13 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
+class Department(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str = Field(index=True, unique=True)
+    description: str = Field(default="")
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
 class Document(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     filename: str
@@ -54,6 +61,95 @@ class User(SQLModel, table=True):
 
 def create_db_and_tables() -> None:
     SQLModel.metadata.create_all(engine)
+
+
+def create_department(session: Session, name: str, description: str = "") -> Department:
+    cleaned_name = name.strip()
+    if not cleaned_name:
+        raise ValueError("Department name is required")
+
+    existing = get_department_by_name(session, cleaned_name)
+    if existing:
+        raise ValueError("Department already exists")
+
+    department = Department(
+        name=cleaned_name,
+        description=description.strip(),
+    )
+    session.add(department)
+    session.commit()
+    session.refresh(department)
+    return department
+
+
+def list_departments(session: Session) -> List[Department]:
+    statement = select(Department).order_by(Department.name)
+    return session.exec(statement).all()
+
+
+def get_department_by_name(session: Session, name: str) -> Optional[Department]:
+    cleaned_name = name.strip()
+    if not cleaned_name:
+        return None
+
+    statement = select(Department).where(Department.name == cleaned_name)
+    return session.exec(statement).first()
+
+
+def seed_departments(session: Session) -> None:
+    default_departments = [
+        {
+            "name": "Engineering",
+            "description": "Architecture, builds, development docs",
+        },
+        {
+            "name": "Human Resources",
+            "description": "Policies, onboarding, employee benefits",
+        },
+        {
+            "name": "Finance",
+            "description": "Budgets, reports, financial planning",
+        },
+        {
+            "name": "Marketing",
+            "description": "Campaigns, branding, strategies",
+        },
+    ]
+
+    for dept in default_departments:
+        existing = get_department_by_name(session, dept["name"])
+        if not existing:
+            department = Department(
+                name=dept["name"],
+                description=dept["description"],
+            )
+            session.add(department)
+
+    session.commit()
+
+
+def seed_admin_user(session: Session) -> None:
+    admin_email = "admin@docspace.com"
+
+    existing_admin = get_user_by_email(session, admin_email)
+    if existing_admin:
+        return
+
+    admin_user = User(
+        full_name="Docspace Admin",
+        email=admin_email,
+        hashed_password=hash_password("admin123"),
+        department="Engineering",
+        role="admin",
+    )
+    session.add(admin_user)
+    session.commit()
+
+
+def seed_defaults() -> None:
+    with Session(engine) as session:
+        seed_departments(session)
+        seed_admin_user(session)
 
 
 def add_document(filename: str, department: str, role: str, owner_id: int) -> Document:

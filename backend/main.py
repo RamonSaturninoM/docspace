@@ -4,7 +4,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from fastapi.responses import FileResponse
 from pathlib import Path
 from pydantic import BaseModel
-from sqlmodel import Session
+from sqlmodel import Session, select
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
 import mimetypes
@@ -13,6 +13,7 @@ import uuid
 from database import (
     engine,
     create_db_and_tables,
+    seed_defaults,
     add_uploaded_document,
     list_documents,
     get_document_by_id,
@@ -22,7 +23,13 @@ from database import (
     get_user_by_email,
     verify_password,
     get_user_by_id,
-    touch_document_opened,  
+    touch_document_opened,
+    create_department,
+    list_departments,
+    get_department_by_name,
+    Department,
+    User,
+    Document,
 )
 
 app = FastAPI()
@@ -72,9 +79,16 @@ def get_current_user(
         return user
 
 
+def get_current_admin(current_user=Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Admin access required")
+    return current_user
+
+
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
+    seed_defaults()
 
 
 @app.get("/")
@@ -87,8 +101,85 @@ def health():
     return {"status": "ok"}
 
 
-# DOCUMENTS
+# DEPARTMENTS
+class CreateDepartmentRequest(BaseModel):
+    name: str
+    description: str = ""
 
+
+@app.get("/departments")
+def get_departments():
+    with Session(engine) as session:
+        departments = list_departments(session)
+        return [
+            {
+                "id": dept.id,
+                "name": dept.name,
+                "description": dept.description,
+                "created_at": dept.created_at,
+            }
+            for dept in departments
+        ]
+
+
+@app.post("/departments")
+def add_department(
+    request: CreateDepartmentRequest,
+    current_user=Depends(get_current_admin),
+):
+    with Session(engine) as session:
+        try:
+            department = create_department(
+                session=session,
+                name=request.name,
+                description=request.description,
+            )
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+
+        return {
+            "id": department.id,
+            "name": department.name,
+            "description": department.description,
+            "created_at": department.created_at,
+        }
+
+
+@app.delete("/departments/{dept_id}")
+def delete_department(
+    dept_id: int,
+    current_user=Depends(get_current_admin),
+):
+    with Session(engine) as session:
+        department = session.get(Department, dept_id)
+        if department is None:
+            raise HTTPException(status_code=404, detail="Department not found")
+
+        user_using_department = session.exec(
+            select(User).where(User.department == department.name)
+        ).first()
+        if user_using_department:
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot delete department because it is assigned to users",
+            )
+
+        document_using_department = session.exec(
+            select(Document).where(Document.department == department.name)
+        ).first()
+        if document_using_department:
+            raise HTTPException(
+                status_code=400,
+                detail="Cannot delete department because it is used by documents",
+            )
+
+        session.delete(department)
+        session.commit()
+
+        return {"deleted": True, "id": dept_id, "name": department.name}
+
+
+# DOCUMENTS
 @app.get("/documents")
 def get_documents(
     view: str = "all",
@@ -98,7 +189,6 @@ def get_documents(
 ):
     docs = list_documents()
 
-    # Filters
     view = (view or "all").lower()
     if view == "my":
         docs = [d for d in docs if d.owner_id == current_user.id]
@@ -107,7 +197,6 @@ def get_documents(
     elif view == "shared":
         docs = []
 
-    # dtype filter (keep your existing backend support)
     dtype = (dtype or "all").lower()
 
     def ext(name: str) -> str:
@@ -126,20 +215,17 @@ def get_documents(
         elif dtype == "slides":
             docs = [d for d in docs if ext(d.filename) in {"ppt", "pptx"}]
 
-    # Sorting
     sort = (sort or "modified").lower()
     if sort == "name":
         docs.sort(key=lambda d: (d.filename or "").lower())
     elif sort == "owner":
         docs.sort(key=lambda d: d.owner_id)
     elif sort == "opened":
-        # newest last opened first; None goes last
         docs.sort(key=lambda d: (d.last_opened_at is None, d.last_opened_at), reverse=False)
         docs.reverse()
     else:
         docs.sort(key=lambda d: d.uploaded_at, reverse=True)
 
-    # Attach owner_name + size + last_opened
     result = []
     with Session(engine) as session:
         for d in docs:
@@ -221,7 +307,7 @@ async def upload_document(
         department=department,
         role=role,
         owner_id=current_user.id,
-        size_bytes=size_bytes,  
+        size_bytes=size_bytes,
     )
 
     return doc
@@ -229,7 +315,6 @@ async def upload_document(
 
 @app.get("/documents/{doc_id}/file")
 def get_document_file(doc_id: int, current_user=Depends(get_current_user)):
-    # update last opened
     touch_document_opened(doc_id)
 
     doc = get_document_by_id(doc_id)
@@ -253,7 +338,6 @@ def get_document_file(doc_id: int, current_user=Depends(get_current_user)):
 
 @app.get("/documents/{doc_id}/download")
 def download_document(doc_id: int, current_user=Depends(get_current_user)):
-    # update last opened
     touch_document_opened(doc_id)
 
     doc = get_document_by_id(doc_id)
@@ -272,7 +356,6 @@ def download_document(doc_id: int, current_user=Depends(get_current_user)):
 
 
 # AUTH
-
 class SignupRequest(BaseModel):
     full_name: str
     email: str
@@ -292,12 +375,16 @@ def signup(request: SignupRequest):
         if existing_user:
             raise HTTPException(status_code=400, detail="User already exists")
 
+        department = get_department_by_name(session, request.department)
+        if not department:
+            raise HTTPException(status_code=400, detail="Selected department does not exist")
+
         user = create_user(
             session=session,
             full_name=request.full_name,
             email=request.email,
             password=request.password,
-            department=request.department,
+            department=department.name,
         )
 
         return {
