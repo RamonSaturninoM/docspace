@@ -1,30 +1,34 @@
-"""FastAPI ingestion API.
-
-POST /api/ingest
-- multipart/form-data with one or more "files" fields
-- Saves files to a temp dir and runs ingestion_engine.ingest on that dir
-"""
+"""FastAPI server for document management, ingestion, and chat."""
 
 from __future__ import annotations
 
 import os
 import tempfile
 from pathlib import Path
-from typing import List
+from typing import Annotated, List
 
-from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
-from chat_engine import chat_with_gemini
+try:
+    from .chat_engine import chat_with_gemini
+    from .document_store import build_document_store
+except ImportError:
+    from chat_engine import chat_with_gemini
+    from document_store import build_document_store
 
 try:
-    from ingestion_engine import ingest
-except ModuleNotFoundError:
-    ingest = None
+    from .ingestion_engine import ingest
+except ImportError:
+    try:
+        from ingestion_engine import ingest
+    except ModuleNotFoundError:
+        ingest = None
 
-app = FastAPI(title="Docspace Ingestion API", version="0.1")
+
+app = FastAPI(title="Docspace API", version="0.2")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -50,10 +54,20 @@ def load_local_env(env_path: Path) -> None:
 
 
 load_local_env(Path(__file__).resolve().parents[2] / ".env")
+document_store = build_document_store(Path(__file__).resolve().parents[1])
 
 
 class ChatRequest(BaseModel):
     message: str
+
+
+class CommentRequest(BaseModel):
+    author: str = "Anonymous"
+    body: str
+
+
+class DocumentUpdateRequest(BaseModel):
+    pinned: bool
 
 
 @app.post("/api/ingest")
@@ -105,6 +119,107 @@ async def ingest_files(files: List[UploadFile] = File(...)) -> JSONResponse:
 @app.get("/healthz")
 def healthz() -> JSONResponse:
     return JSONResponse({"ok": True})
+
+
+@app.get("/api/documents")
+def list_documents(
+    q: str = Query(default=""),
+    department: str | None = None,
+    kind: str | None = None,
+    pinned: bool | None = None,
+    limit: int | None = None,
+) -> JSONResponse:
+    documents = document_store.list_documents(
+        query=q,
+        department=department,
+        kind=kind,
+        pinned=pinned,
+        limit=limit,
+    )
+    return JSONResponse({"documents": documents})
+
+
+@app.post("/api/documents")
+async def create_document(
+    file: UploadFile = File(...),
+    title: Annotated[str, Form()] = "",
+    department: Annotated[str, Form()] = "General",
+    owner: Annotated[str, Form()] = "Unknown",
+    description: Annotated[str, Form()] = "",
+    pinned: Annotated[bool, Form()] = False,
+) -> JSONResponse:
+    filename = (file.filename or "").strip()
+    if not filename:
+        raise HTTPException(status_code=400, detail="Missing file name")
+
+    payload = await file.read()
+    if not payload:
+        raise HTTPException(status_code=400, detail="Uploaded file was empty")
+
+    saved_file = document_store.storage.save_upload(filename, payload, file.content_type)
+    document = document_store.create_document(
+        saved_file=saved_file,
+        title=title,
+        department=department,
+        owner=owner,
+        description=description,
+        pinned=pinned,
+    )
+    return JSONResponse(document, status_code=201)
+
+
+@app.get("/api/documents/{document_id}")
+def get_document(document_id: str) -> JSONResponse:
+    document = document_store.get_document(document_id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return JSONResponse(document)
+
+
+@app.get("/api/documents/{document_id}/content")
+def get_document_content(document_id: str):
+    document = document_store.get_document(document_id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    file_path = document_store.file_path(document_id)
+    if file_path is None:
+        raise HTTPException(status_code=404, detail="Document file not found")
+    return FileResponse(
+        file_path,
+        media_type=document.get("mime_type", "application/octet-stream"),
+        filename=document.get("filename", file_path.name),
+    )
+
+
+@app.patch("/api/documents/{document_id}")
+def update_document(document_id: str, request: DocumentUpdateRequest) -> JSONResponse:
+    document = document_store.set_pinned(document_id, request.pinned)
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return JSONResponse(document)
+
+
+@app.delete("/api/documents/{document_id}")
+def delete_document(document_id: str) -> JSONResponse:
+    deleted = document_store.delete_document(document_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return JSONResponse({"deleted": True})
+
+
+@app.post("/api/documents/{document_id}/comments")
+def add_comment(document_id: str, request: CommentRequest) -> JSONResponse:
+    if not request.body.strip():
+        raise HTTPException(status_code=400, detail="Comment body cannot be empty")
+    comment = document_store.add_comment(document_id, request.author, request.body)
+    if comment is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return JSONResponse(comment, status_code=201)
+
+
+@app.get("/api/dashboard/stats")
+def dashboard_stats() -> JSONResponse:
+    return JSONResponse(document_store.dashboard_stats())
 
 
 @app.post("/api/chat")
