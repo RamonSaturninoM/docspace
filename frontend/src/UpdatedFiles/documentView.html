@@ -1,54 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Document | Docspace Portal</title>
+    <link rel="stylesheet" href="styles/shared.css">
     <link rel="stylesheet" href="styles/documentView.css">
     <script defer src="scripts/documentView.js"></script>
 </head>
-
 <body>
-
-    <header>
-        <h1>Company Portal</h1>
+    <header class="site-header">
+        <h1>Docspace Portal</h1>
         <div class="top-nav">
-            <input type="text" id="searchInput" placeholder="Search documents...">
-            <button id="searchBtn">Search</button>
-            <nav>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search documents...">
+            <button id="searchBtn" class="btn">Search</button>
+            <nav class="site-nav">
                 <a href="portal.html">Home</a>
-                <a href="documents.html">Documents</a>
+                <a href="documents.html" class="active">Documents</a>
                 <a href="departments.html">Departments</a>
-                <a href="#">Profile</a>
+                <a href="dashboard.html">API Dashboard</a>
+                <a href="chat.html">Chat</a>
                 <a href="login-signup.html">Logout</a>
             </nav>
         </div>
     </header>
 
-    <div class="main-container">
-
+    <div class="page-shell main-container">
         <aside class="sidebar">
-            <div class="ai-chat">
+            <div class="ai-chat panel">
                 <h2>AI Assistant</h2>
                 <div class="chat-box">
-                    <p>Ask me to find documents or information.</p>
+                    <p>Ask me to summarize this document or answer questions about it.</p>
                 </div>
+                <a class="chat-cta" href="chat.html">Open Chat</a>
             </div>
         </aside>
 
         <section class="content">
-            <div class="document-header">
+            <div class="document-header panel">
                 <h2 id="docTitle">Document Title Placeholder</h2>
-                <button id="pinBtn">Pin Document</button>
+                <button id="pinBtn" class="btn">Pin Document</button>
             </div>
 
-            <div class="document-viewer">
+            <div class="document-viewer panel">
                 <p>Document content would be displayed here (PDF, Word, etc.).</p>
-                <iframe id="docFrame" src="" frameborder="0"></iframe>
+                <iframe id="docFrame" src="" title="Document Preview"></iframe>
             </div>
 
-            <div class="comments-section">
+            <div class="comments-section panel">
                 <h3>Comments</h3>
                 <div id="commentsList">
                     <div class="comment">
@@ -61,12 +60,10 @@
 
                 <form id="commentForm">
                     <input type="text" id="commentInput" placeholder="Add a comment...">
-                    <button type="submit">Post</button>
+                    <button type="submit" class="btn">Post</button>
                 </form>
             </div>
         </section>
     </div>
-
 </body>
-
 </html>
