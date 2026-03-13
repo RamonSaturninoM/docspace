@@ -4,148 +4,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile | Company Portal</title>
-
+    <title>Profile | Docspace Portal</title>
+    <link rel="stylesheet" href="styles/shared.css">
     <link rel="stylesheet" href="styles/profile.css">
-    <link rel="stylesheet" href="styles/portal.css">
-    <script src="scripts/profile.js" defer></script>
+    <script defer src="scripts/api.js"></script>
+    <script defer src="scripts/profile.js"></script>
 </head>
 
 <body>
-    <header>
+    <header class="site-header">
         <h1>Docspace Profile</h1>
         <div class="top-nav">
-            <input type="text" id="searchInput" placeholder="Search documents...">
-            <button id="searchBtn">Search</button>
-            <nav>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search documents...">
+            <button id="searchBtn" class="btn">Search</button>
+            <nav class="site-nav">
                 <a href="portal.html">Home</a>
                 <a href="documents.html">Documents</a>
                 <a href="departments.html">Departments</a>
-                <a href="#">Profile</a>
+                <a href="profile.html" class="active">Profile</a>
                 <a href="login-signup.html">Logout</a>
             </nav>
         </div>
     </header>
 
-
     <main class="profile-wrapper">
-
         <div class="profile-box">
-
-            <!-- AVATAR -->
             <div class="avatar-container">
-                <img src="images/random-profile-pic.jpg" alt="Profile">
+                <img id="profileAvatar" src="images/random-profile-pic.jpg" alt="Profile">
             </div>
 
-            <!-- HEADER ROW -->
             <div class="profile-header-row">
-
                 <div class="profile-name-block">
-                    <h2 class="profile-name">Hazel Victor</h2>
-                    <p class="profile-role">Systems Analyst</p>
+                    <h2 id="profileName" class="profile-name">Loading...</h2>
+                    <p id="profileRole" class="profile-role"></p>
                 </div>
 
                 <div class="profile-settings">
-
-                    <button class="settings-btn" onclick="toggleSettingsMenu()">
-                        ⚙
-                    </button>
-
+                    <button class="settings-btn" onclick="toggleSettingsMenu()">⚙</button>
                     <div class="settings-dropdown hidden" id="settingsMenu">
                         <a href="#">Update Profile</a>
                         <a href="#">Change Password</a>
                     </div>
-
                 </div>
-
             </div>
 
+            <div id="profileMeta" class="profile-meta"></div>
 
-
-
-
-            <!-- META INFO -->
-            <div class="profile-meta">
-                <p>Email: hazel.victor@company.com</p>
-                <p>Department: Engineering</p>
-                <p>Employee ID: EMP-48291</p>
-                <p>Location: Greensboro, NC</p>
-            </div>
-
-
-            <!-- TABS -->
             <div class="profile-tabs">
-
-                <button class="tab active" onclick="showTab('activity')">
-                    Recent Activity
-                </button>
-
-                <button class="tab" onclick="showTab('pinned')">
-                    Pinned Documents
-                </button>
-
-                <button class="tab" onclick="showTab('permissions')">
-                    Permissions
-                </button>
-
+                <button class="tab active" onclick="showTab('activity')">Recent Activity</button>
+                <button class="tab" onclick="showTab('pinned')">Pinned Documents</button>
+                <button class="tab" onclick="showTab('permissions')">Permissions</button>
             </div>
-
-
-            <!-- ===== TAB PANELS ===== -->
 
             <div id="activity" class="tab-panel">
-
-                <div class="activity-grid">
-
-                    <div class="activity-card">
-                        <h4>API Security Guidelines</h4>
-                        <p>Opened — 2 hours ago</p>
-                    </div>
-
-                </div>
-
+                <div class="activity-grid" id="activityGrid">Loading...</div>
             </div>
-
 
             <div id="pinned" class="tab-panel hidden">
-
-                <div class="activity-grid">
-
-                    <div class="activity-card">
-                        <h4>Employee Handbook</h4>
-                        <p>Pinned by You</p>
-                    </div>
-
-                </div>
-
+                <div class="activity-grid" id="pinnedGrid">Loading...</div>
             </div>
-
 
             <div id="permissions" class="tab-panel hidden">
-
-                <div class="activity-grid">
-
-                    <div class="activity-card">
-                        <h4>Allowed Departments</h4>
-                        <p>Engineering</p>
-                        <p>Finance</p>
-                        <p>Internal Security</p>
-                    </div>
-
-                    <div class="activity-card">
-                        <h4>Access Approved By</h4>
-                        <p>CEO: Daniel Carter</p>
-                    </div>
-
-                </div>
-
+                <div class="activity-grid" id="permissionsGrid">Loading...</div>
             </div>
-
-
         </div>
-
     </main>
-
 </body>
 
 </html>

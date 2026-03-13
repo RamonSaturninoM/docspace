@@ -1,75 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Departments | Docspace Portal</title>
   <link rel="stylesheet" href="styles/shared.css">
   <link rel="stylesheet" href="styles/departments.css">
+  <script defer src="scripts/api.js"></script>
+  <script defer src="scripts/departments.js"></script>
 </head>
+
 <body>
-<header class="site-header">
-  <h1>Docspace Portal</h1>
-  <div class="top-nav">
-    <input type="text" class="search-input" placeholder="Search documents or departments...">
-    <button class="btn">Search</button>
-    <nav class="site-nav">
-      <a href="portal.html">Home</a>
-      <a href="departments.html" class="active">Departments</a>
-      <a href="documents.html">Documents</a>
-      <a href="dashboard.html">API Dashboard</a>
-      <a href="chat.html">Chat</a>
-      <a href="login-signup.html">Logout</a>
-    </nav>
-  </div>
-</header>
-
-<main class="page-shell">
-  <section class="intro panel">
-    <div>
-      <h2>Departments</h2>
-      <p>Select a department to view its documents and updates.</p>
+  <header class="site-header">
+    <h1>Docspace Portal</h1>
+    <div class="top-nav">
+      <input type="text" id="searchInput" class="search-input" placeholder="Search documents or departments...">
+      <button id="searchBtn" class="btn">Search</button>
+      <nav class="site-nav">
+        <a href="portal.html">Home</a>
+        <a href="departments.html" class="active">Departments</a>
+        <a href="documents.html">Documents</a>
+        <a href="dashboard.html">API Dashboard</a>
+        <a href="chat.html">Chat</a>
+        <a href="login-signup.html">Logout</a>
+      </nav>
     </div>
-    <a class="chat-cta" href="chat.html">Open Chat</a>
-  </section>
+  </header>
 
-  <section class="department-grid">
-    <a class="department-card" href="documents.html">
-      <h3>Human Resources</h3>
-      <p>Policies, onboarding, employee benefits</p>
-      <span>34 Documents</span>
-    </a>
+  <main class="page-shell">
+    <section class="intro panel">
+      <div>
+        <h2>Departments</h2>
+        <p>Select a department to view its documents and updates.</p>
+      </div>
+      <a class="chat-cta" href="chat.html">Open Chat</a>
+    </section>
 
-    <a class="department-card" href="documents.html">
-      <h3>Engineering</h3>
-      <p>Architecture, builds, development docs</p>
-      <span>82 Documents</span>
-    </a>
-
-    <a class="department-card" href="documents.html">
-      <h3>Finance</h3>
-      <p>Budgets, reports, financial planning</p>
-      <span>26 Documents</span>
-    </a>
-
-    <a class="department-card" href="documents.html">
-      <h3>Marketing</h3>
-      <p>Campaigns, branding, strategies</p>
-      <span>41 Documents</span>
-    </a>
-
-    <a class="department-card" href="documents.html">
-      <h3>Legal</h3>
-      <p>Compliance, contracts, agreements</p>
-      <span>18 Documents</span>
-    </a>
-
-    <a class="department-card" href="documents.html">
-      <h3>Operations</h3>
-      <p>Processes, logistics, workflows</p>
-      <span>29 Documents</span>
-    </a>
-  </section>
-</main>
+    <section class="department-grid" id="departmentGrid">
+      <p>Loading departments...</p>
+    </section>
+  </main>
 </body>
+
 </html>
