@@ -111,15 +111,26 @@ class CreateDepartmentRequest(BaseModel):
 def get_departments():
     with Session(engine) as session:
         departments = list_departments(session)
-        return [
-            {
-                "id": dept.id,
-                "name": dept.name,
-                "description": dept.description,
-                "created_at": dept.created_at,
-            }
-            for dept in departments
-        ]
+        result = []
+
+        for dept in departments:
+            document_count = len(
+                session.exec(
+                    select(Document).where(Document.department == dept.name)
+                ).all()
+            )
+
+            result.append(
+                {
+                    "id": dept.id,
+                    "name": dept.name,
+                    "description": dept.description,
+                    "created_at": dept.created_at,
+                    "document_count": document_count,
+                }
+            )
+
+        return result
 
 
 @app.post("/departments")
@@ -288,6 +299,11 @@ async def upload_document(
     department: str = Form(...),
     role: str = Form(...),
 ):
+    with Session(engine) as session:
+        existing_department = get_department_by_name(session, department)
+        if not existing_department:
+            raise HTTPException(status_code=400, detail="Selected department does not exist")
+
     storage_dir = (Path(__file__).parent / "storage").resolve()
     storage_dir.mkdir(exist_ok=True)
 

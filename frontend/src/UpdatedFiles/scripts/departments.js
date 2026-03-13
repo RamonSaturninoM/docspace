@@ -87,7 +87,8 @@ function buildDepartmentCard(department) {
       : "No description provided.";
 
   const actionText = document.createElement("span");
-  actionText.textContent = "View Department";
+  const count = Number(department.document_count) || 0;
+  actionText.textContent = count === 1 ? "1 document" : `${count} documents`;
 
   link.appendChild(title);
   link.appendChild(description);
