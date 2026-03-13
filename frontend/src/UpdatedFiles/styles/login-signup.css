@@ -39,7 +39,8 @@ label {
     color: #d1d5db;
 }
 
-input {
+input,
+select {
     width: 100%;
     padding: 11px;
     border-radius: 8px;
@@ -47,9 +48,23 @@ input {
     font-size: 14px;
     background-color: #0f182b;
     color: #f9fafb;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
 }
 
-input:focus {
+input::placeholder {
+    color: #6b7280;
+}
+
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    cursor: pointer;
+}
+
+input:focus,
+select:focus {
     outline: none;
     border-color: #3b82f6;
 }
@@ -88,14 +103,4 @@ input:focus {
 
 .hidden {
     display: none;
-}
-
-@media (max-width: 860px) {
-    .auth-layout {
-        grid-template-columns: 1fr;
-    }
-
-    .auth-page {
-        min-height: unset;
-    }
 }

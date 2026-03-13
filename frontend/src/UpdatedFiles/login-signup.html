@@ -9,88 +9,71 @@
     <script src="scripts/login-signup.js" defer></script>
 </head>
 <body>
-    <header class="site-header auth-header">
-        <h1>Docspace Portal</h1>
-        <div class="top-nav auth-nav">
-            <nav class="site-nav">
-                <a href="portal.html">Home</a>
-                <a href="documents.html">Documents</a>
-                <a href="departments.html">Departments</a>
-                <a href="dashboard.html">API Dashboard</a>
-                <a href="chat.html">Chat</a>
-                <a href="login-signup.html" class="active">Login</a>
-            </nav>
-        </div>
-    </header>
 
-    <main class="auth-page page-shell">
-        <div class="auth-layout">
-            <section class="auth-container panel">
-                <section id="loginForm" aria-labelledby="loginHeading">
-                    <h2 id="loginHeading">Welcome Back</h2>
-                    <p>Sign in to access company documentation</p>
+    <main class="auth-container">
 
-                    <form id="loginFormElement">
-                        <div class="form-group">
-                            <label for="loginEmail">Email</label>
-                            <input type="email" id="loginEmail" name="email" placeholder="you@company.com" required />
-                        </div>
+        <section id="loginForm" aria-labelledby="loginHeading">
+            <h2 id="loginHeading">Welcome Back</h2>
+            <p>Sign in to access company documentation</p>
 
-                        <div class="form-group">
-                            <label for="loginPassword">Password</label>
-                            <input type="password" id="loginPassword" name="password" placeholder="••••••••" required />
-                        </div>
+            <form id="loginFormElement">
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input type="email" id="loginEmail" name="email" placeholder="you@company.com" required />
+                </div>
 
-                        <button type="submit" class="btn auth-btn">Login</button>
-                    </form>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" name="password" placeholder="••••••••" required />
+                </div>
 
-                    <div class="switch">
-                        Don’t have an account?
-                        <a href="#" onclick="showSignup()">Sign up</a>
-                    </div>
-                </section>
+                <button type="submit">Login</button>
+            </form>
 
-                <section id="signupForm" class="hidden" aria-labelledby="signupHeading">
-                    <h2 id="signupHeading">Create Account</h2>
-                    <p>Request access to the documentation portal</p>
+            <div class="switch">
+                Don’t have an account?
+                <a href="#" onclick="showSignup()">Sign up</a>
+            </div>
+        </section>
 
-                    <form id="signupFormElement">
-                        <div class="form-group">
-                            <label for="name">Full Name</label>
-                            <input type="text" id="name" name="name" placeholder="John Doe" required />
-                        </div>
 
-                        <div class="form-group">
-                            <label for="signupEmail">Company Email</label>
-                            <input type="email" id="signupEmail" name="email" placeholder="you@company.com" required />
-                        </div>
+        <section id="signupForm" class="hidden" aria-labelledby="signupHeading">
+            <h2 id="signupHeading">Create Account</h2>
+            <p>Request access to the documentation portal</p>
 
-                        <div class="form-group">
-                            <label for="department">Department</label>
-                            <input type="text" id="department" name="department" placeholder="Engineering, HR, Finance..." required />
-                        </div>
+            <form id="signupFormElement">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required />
+                </div>
 
-                        <div class="form-group">
-                            <label for="signupPassword">Password</label>
-                            <input type="password" id="signupPassword" name="password" placeholder="Create a password" required />
-                        </div>
+                <div class="form-group">
+                    <label for="signupEmail">Company Email</label>
+                    <input type="email" id="signupEmail" name="email" placeholder="you@company.com" required />
+                </div>
 
-                        <button type="submit" class="btn auth-btn">Sign Up</button>
-                    </form>
+                <div class="form-group">
+                    <label for="department">Department</label>
+                    <select id="department" name="department" required>
+                        <option value="">Loading departments...</option>
+                    </select>
+                </div>
 
-                    <div class="switch">
-                        Already have an account?
-                        <a href="#" onclick="showLogin()">Login</a>
-                    </div>
-                </section>
-            </section>
+                <div class="form-group">
+                    <label for="signupPassword">Password</label>
+                    <input type="password" id="signupPassword" name="password" placeholder="Create a password"
+                        required />
+                </div>
 
-            <aside class="auth-side panel">
-                <h2>Need help with documents?</h2>
-                <p class="muted">Use chat to ask questions about uploaded files, policies, and team resources.</p>
-                <a class="chat-cta" href="chat.html">Open Chat</a>
-            </aside>
-        </div>
+                <button type="submit">Sign Up</button>
+            </form>
+
+            <div class="switch">
+                Already have an account?
+                <a href="#" onclick="showLogin()">Login</a>
+            </div>
+        </section>
+
     </main>
 </body>
 </html>

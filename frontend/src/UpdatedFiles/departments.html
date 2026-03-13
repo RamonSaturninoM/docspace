@@ -8,12 +8,18 @@
   <link rel="stylesheet" href="styles/departments.css">
 </head>
 <body>
-<header class="site-header">
-  <h1>Docspace Portal</h1>
-  <div class="top-nav">
-    <input type="text" class="search-input" placeholder="Search documents or departments...">
-    <button class="btn">Search</button>
-    <nav class="site-nav">
+
+<header>
+  <h1>Company Portal</h1>
+
+  <div class="top-bar">
+    <input
+      type="text"
+      id="departmentSearchInput"
+      placeholder="Search documents or departments..."
+    >
+
+    <nav>
       <a href="portal.html">Home</a>
       <a href="departments.html" class="active">Departments</a>
       <a href="documents.html">Documents</a>
@@ -33,43 +39,46 @@
     <a class="chat-cta" href="chat.html">Open Chat</a>
   </section>
 
-  <section class="department-grid">
-    <a class="department-card" href="documents.html">
-      <h3>Human Resources</h3>
-      <p>Policies, onboarding, employee benefits</p>
-      <span>34 Documents</span>
-    </a>
+  <section id="adminControls" class="admin-controls hidden">
+    <div class="admin-controls-header">
+      <h3>Department Management</h3>
+      <p>Admins can create and delete departments.</p>
+    </div>
 
-    <a class="department-card" href="documents.html">
-      <h3>Engineering</h3>
-      <p>Architecture, builds, development docs</p>
-      <span>82 Documents</span>
-    </a>
+    <form id="addDepartmentForm" class="add-department-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="departmentNameInput">Department Name</label>
+          <input
+            type="text"
+            id="departmentNameInput"
+            placeholder="e.g. Operations"
+            required
+          >
+        </div>
 
-    <a class="department-card" href="documents.html">
-      <h3>Finance</h3>
-      <p>Budgets, reports, financial planning</p>
-      <span>26 Documents</span>
-    </a>
+        <div class="form-group">
+          <label for="departmentDescriptionInput">Description</label>
+          <input
+            type="text"
+            id="departmentDescriptionInput"
+            placeholder="e.g. Processes, logistics, workflows"
+          >
+        </div>
+      </div>
 
-    <a class="department-card" href="documents.html">
-      <h3>Marketing</h3>
-      <p>Campaigns, branding, strategies</p>
-      <span>41 Documents</span>
-    </a>
+      <button type="submit" class="admin-btn">Add Department</button>
+    </form>
 
-    <a class="department-card" href="documents.html">
-      <h3>Legal</h3>
-      <p>Compliance, contracts, agreements</p>
-      <span>18 Documents</span>
-    </a>
+    <div id="adminMessage" class="admin-message hidden"></div>
+  </section>
 
-    <a class="department-card" href="documents.html">
-      <h3>Operations</h3>
-      <p>Processes, logistics, workflows</p>
-      <span>29 Documents</span>
-    </a>
+  <section class="department-grid" id="departmentGrid">
+    <p id="departmentsStatus">Loading departments...</p>
   </section>
 </main>
+
+<script src="scripts/departments.js"></script>
+
 </body>
 </html>

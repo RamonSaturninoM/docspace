@@ -1,17 +1,17 @@
-(() => {
-const { apiFetch, apiUrl, formatBytes, formatDate } = window.DocspaceApi;
+const API_BASE = "http://127.0.0.1:8000";
 
-const params = new URLSearchParams(window.location.search);
-const documentId = params.get("id");
+// Auth helper
+function getToken() {
+  return localStorage.getItem("access_token");
+}
 
-const docTitle = document.getElementById("docTitle");
-const docMeta = document.getElementById("docMeta");
-const docDescription = document.getElementById("docDescription");
-const docIndexMeta = document.getElementById("docIndexMeta");
+// UI elements
 const pinBtn = document.getElementById("pinBtn");
-const reindexBtn = document.getElementById("reindexBtn");
-const deleteBtn = document.getElementById("deleteBtn");
-const commentsList = document.getElementById("commentsList");
+const docTitleEl = document.getElementById("docTitle");
+const docFrame = document.getElementById("docFrame");
+const viewerPlaceholder = document.getElementById("viewerPlaceholder");
+
+// Comments
 const commentForm = document.getElementById("commentForm");
 const commentAuthor = document.getElementById("commentAuthor");
 const commentInput = document.getElementById("commentInput");
@@ -43,99 +43,187 @@ const renderComments = (comments) => {
     .join("");
 };
 
-const renderDocument = (documentData) => {
-  currentDocument = documentData;
-  docTitle.textContent = documentData.title;
-  docMeta.textContent = `${documentData.department} • ${documentData.owner} • ${formatBytes(documentData.size_bytes)} • Updated ${formatDate(documentData.updated_at)}`;
-  docDescription.textContent = documentData.description || "No description added.";
-  docIndexMeta.textContent = `Index: ${documentData.index_status}${documentData.chunk_count ? ` • ${documentData.chunk_count} chunks` : ""}${documentData.index_error ? ` • ${documentData.index_error}` : ""}`;
-  pinBtn.textContent = documentData.pinned ? "Unpin Document" : "Pin Document";
-  openFileBtn.href = apiUrl(documentData.download_url);
-  docFrame.src = apiUrl(documentData.download_url);
-  renderComments(documentData.comments || []);
-};
+// Current doc state
+let currentDocId = null;
+let isPinned = false;
 
-const loadDocument = async () => {
-  if (!documentId) {
-    setStatus("Missing document id", true);
-    return;
-  }
+// Track iframe object URL so we can revoke it
+let currentObjectUrl = null;
 
-  setStatus("Loading document...");
-  try {
-    const payload = await apiFetch(`/api/documents/${documentId}`);
-    renderDocument(payload);
-    setStatus("Document loaded");
-  } catch (error) {
-    setStatus(error.message || "Unable to load document", true);
-  }
-};
+if (commentForm && commentInput && commentsList) {
+  commentForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const commentText = commentInput.value.trim();
+    if (!commentText) return;
 
-pinBtn.addEventListener("click", async () => {
-  if (!currentDocument) return;
-  setStatus("Updating document...");
-  try {
-    const payload = await apiFetch(`/api/documents/${currentDocument.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ pinned: !currentDocument.pinned }),
-    });
-    renderDocument(payload);
-    setStatus("Document updated");
-  } catch (error) {
-    setStatus(error.message || "Unable to update document", true);
-  }
-});
+    const newComment = document.createElement("div");
+    newComment.classList.add("comment");
+    newComment.innerHTML = `<strong>You:</strong> ${escapeHtml(commentText)}`;
+    commentsList.appendChild(newComment);
 
-reindexBtn.addEventListener("click", async () => {
-  if (!currentDocument) return;
-  setStatus("Reindexing document...");
-  try {
-    await apiFetch(`/api/documents/${currentDocument.id}/index`, { method: "POST" });
-    await loadDocument();
-  } catch (error) {
-    setStatus(error.message || "Unable to reindex document", true);
-  }
-});
-
-deleteBtn.addEventListener("click", async () => {
-  if (!currentDocument) return;
-  const confirmed = window.confirm("Delete this document?");
-  if (!confirmed) return;
-  setStatus("Deleting document...");
-  try {
-    await apiFetch(`/api/documents/${currentDocument.id}`, { method: "DELETE" });
-    window.location.href = "documents.html";
-  } catch (error) {
-    setStatus(error.message || "Unable to delete document", true);
-  }
-});
-
-commentForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  if (!currentDocument) return;
-  const body = commentInput.value.trim();
-  if (!body) {
-    setStatus("Comment cannot be empty", true);
-    return;
-  }
-
-  setStatus("Posting comment...");
-  try {
-    await apiFetch(`/api/documents/${currentDocument.id}/comments`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        author: commentAuthor.value.trim() || "Anonymous",
-        body,
-      }),
-    });
     commentInput.value = "";
-    await loadDocument();
-  } catch (error) {
-    setStatus(error.message || "Unable to post comment", true);
+    commentsList.scrollTop = commentsList.scrollHeight;
+  });
+}
+
+function updatePinButtonText() {
+  if (!pinBtn) return;
+  pinBtn.textContent = isPinned ? "Unpin Document" : "Pin Document";
+}
+
+async function fetchPinnedState() {
+  const token = getToken();
+  if (!token || !currentDocId) return;
+
+  const res = await fetch(`${API_BASE}/documents/${encodeURIComponent(currentDocId)}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (!res.ok) return;
+
+  const doc = await res.json();
+  isPinned = !!doc.pinned;
+  updatePinButtonText();
+
+  // If title not provided in URL, set it from backend response
+  if (docTitleEl && doc && doc.filename) {
+    const params = new URLSearchParams(window.location.search);
+    if (!params.get("doc")) {
+      docTitleEl.textContent = doc.filename;
+    }
+  }
+}
+
+async function setPinnedOnServer(pinned) {
+  const token = getToken();
+  if (!token) {
+    alert("You must log in first.");
+    window.location.href = "login-signup.html";
+    return;
+  }
+  if (!currentDocId) return;
+
+  const endpoint = pinned ? "pin" : "unpin";
+
+  const res = await fetch(
+    `${API_BASE}/documents/${encodeURIComponent(currentDocId)}/${endpoint}`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`Pin update failed (${res.status}): ${text}`);
+  }
+
+  const data = await res.json();
+  isPinned = !!data.pinned;
+  updatePinButtonText();
+}
+
+if (pinBtn) {
+  pinBtn.addEventListener("click", async () => {
+    try {
+      await setPinnedOnServer(!isPinned);
+    } catch (err) {
+      console.error(err);
+      alert("Could not update pin status");
+    }
+  });
+}
+
+async function loadDocumentIntoViewer() {
+  const token = getToken();
+  if (!token) {
+    alert("You must log in first.");
+    window.location.href = "login-signup.html";
+    return;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+
+  const docTitle = params.get("doc");
+  if (docTitle && docTitleEl) {
+    docTitleEl.textContent = docTitle;
+  }
+
+  const docId = params.get("id");
+  if (!docId) {
+    console.warn("Missing ?id= in URL");
+    if (viewerPlaceholder) viewerPlaceholder.textContent = "Missing document id in URL.";
+    return;
+  }
+
+  currentDocId = docId;
+
+  // Show placeholder while loading
+  if (viewerPlaceholder) viewerPlaceholder.style.display = "";
+  if (docFrame) docFrame.style.display = "";
+
+  await fetchPinnedState();
+
+  try {
+    const res = await fetch(`${API_BASE}/documents/${encodeURIComponent(docId)}/file`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(`Failed to load document file (${res.status}): ${text}`);
+    }
+
+    const blob = await res.blob();
+
+    if (currentObjectUrl) {
+      URL.revokeObjectURL(currentObjectUrl);
+      currentObjectUrl = null;
+    }
+
+    const objectUrl = URL.createObjectURL(blob);
+    currentObjectUrl = objectUrl;
+
+    if (docFrame) {
+      docFrame.style.width = "100%";
+      docFrame.style.minHeight = "70vh";
+
+      // Hide placeholder once iframe actually loads the blob URL
+      docFrame.onload = () => {
+        if (viewerPlaceholder) viewerPlaceholder.style.display = "none";
+      };
+
+      docFrame.src = objectUrl;
+    } else {
+      if (viewerPlaceholder) viewerPlaceholder.textContent = "Viewer iframe not found on page.";
+    }
+  } catch (err) {
+    console.error(err);
+    if (viewerPlaceholder) {
+      viewerPlaceholder.textContent = "Error loading document. Please try again.";
+      viewerPlaceholder.style.display = "";
+    }
+    alert("Error loading document viewer");
+  }
+}
+
+// Basic HTML escape
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+document.addEventListener("DOMContentLoaded", loadDocumentIntoViewer);
+
+// Cleanup on leaving page
+window.addEventListener("beforeunload", () => {
+  if (currentObjectUrl) {
+    URL.revokeObjectURL(currentObjectUrl);
+    currentObjectUrl = null;
   }
 });
-
-loadDocument();
-})();

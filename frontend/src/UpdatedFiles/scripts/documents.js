@@ -1,189 +1,310 @@
-(() => {
-const { apiFetch, apiUrl, formatBytes, formatDate } = window.DocspaceApi;
+const API_BASE = "http://127.0.0.1:8000";
 
-const grid = document.getElementById("documentsGrid");
-const tableBody = document.getElementById("documentsTableBody");
-const emptyState = document.getElementById("emptyState");
-const statusNode = document.getElementById("documentsStatus");
-const searchInput = document.getElementById("documentsSearch");
-const departmentFilter = document.getElementById("departmentFilter");
-const kindFilter = document.getElementById("kindFilter");
-const pinnedFilter = document.getElementById("pinnedFilter");
-const uploadForm = document.getElementById("uploadForm");
+let allDocs = [];
 
-const setStatus = (message, isError = false) => {
-  statusNode.textContent = message;
-  statusNode.dataset.error = isError ? "true" : "false";
-};
+function getToken() {
+  return localStorage.getItem("access_token");
+}
 
-const detailUrl = (documentId) => `documentView.html?id=${encodeURIComponent(documentId)}`;
+function getSearchText() {
+  const input = document.getElementById("searchInput");
+  return (input ? input.value : "").trim().toLowerCase();
+}
 
-const iconLetter = (title = "") => title.trim().charAt(0).toUpperCase() || "F";
+function getFilterParams() {
+  const selects = document.querySelectorAll(".documents-toolbar select");
+  const viewSelect = selects[0];
+  const typeSelect = selects[1];
+  const sortSelect = selects[2];
 
-const renderCard = (document) => `
-  <article class="document-card" data-id="${document.id}">
-    <div class="doc-icon">${iconLetter(document.title)}</div>
-    <h3>${document.title}</h3>
-    <div class="meta">${document.department} • Updated ${formatDate(document.updated_at)} • ${formatBytes(document.size_bytes)}</div>
-    <div class="labels">
-      ${document.pinned ? '<span class="label-pill">Pinned</span>' : ""}
-      <span class="label-pill">${document.kind}</span>
-      <span class="label-pill">${document.department}</span>
-      <span class="label-pill">${document.index_status}</span>
-    </div>
-    <div class="card-actions">
-      <a class="action-link" href="${detailUrl(document.id)}">Open</a>
-      <a class="action-link" href="${apiUrl(document.download_url)}" target="_blank" rel="noreferrer">View file</a>
-    </div>
-  </article>
-`;
+  const viewMap = {
+    "All documents": "all",
+    "My documents": "my",
+    "Pinned only": "pinned",
+    "Shared with me": "shared",
+  };
 
-const renderRow = (document) => `
-  <tr>
-    <td class="doc-name-cell">
-      <span class="small-icon">${iconLetter(document.title)}</span>
-      ${document.title}
-    </td>
-    <td>${document.owner}</td>
-    <td>${document.department}</td>
-    <td>${document.comments.length}</td>
-    <td>${formatDate(document.updated_at)}</td>
-    <td>${formatBytes(document.size_bytes)}</td>
-    <td class="actions">
-      <a href="${detailUrl(document.id)}">Open</a>
-      <a href="${apiUrl(document.download_url)}" target="_blank" rel="noreferrer">View</a>
-      ${
-        document.index_status === "failed"
-          ? `<a href="#" data-index-id="${document.id}">Reindex</a>`
-          : ""
-      }
-      <a href="#" data-delete-id="${document.id}">Delete</a>
-    </td>
-  </tr>
-`;
+  const typeMap = {
+    "All types": "all",
+    "PDF": "pdf",
+    "Word / Docs": "docs",
+    "Spreadsheet": "sheets",
+    "Presentation": "slides",
+  };
 
-const readFilters = () => {
-  const q = searchInput.value.trim();
-  const department = departmentFilter.value;
-  const kind = kindFilter.value;
-  const pinned = pinnedFilter.value;
-  const query = new URLSearchParams();
-  if (q) query.set("q", q);
-  if (department) query.set("department", department);
-  if (kind) query.set("kind", kind);
-  if (pinned === "true") query.set("pinned", "true");
-  return query;
-};
+  const sortMap = {
+    "Recently opened": "opened",
+    "Recently modified": "modified",
+    "Name (A–Z)": "name",
+    "Owner": "owner",
+  };
 
-const syncQuery = (query) => {
-  const next = `${window.location.pathname}?${query.toString()}`;
-  window.history.replaceState({}, "", next);
-};
+  return {
+    view: viewMap[viewSelect.value] || "all",
+    dtype: typeMap[typeSelect.value] || "all",
+    sort: sortMap[sortSelect.value] || "modified",
+  };
+}
 
-const applyInitialSearch = () => {
-  const params = new URLSearchParams(window.location.search);
-  searchInput.value = params.get("q") || "";
-};
-
-const renderDocuments = (documents) => {
-  grid.innerHTML = documents.map(renderCard).join("");
-  tableBody.innerHTML = documents.map(renderRow).join("");
-  emptyState.hidden = documents.length > 0;
-};
-
-const loadDocuments = async () => {
-  const query = readFilters();
-  syncQuery(query);
-  setStatus("Loading documents...");
-
-  try {
-    const payload = await apiFetch(`/api/documents?${query.toString()}`);
-    const documents = payload.documents || [];
-    renderDocuments(documents);
-    setStatus(`${documents.length} document${documents.length === 1 ? "" : "s"} loaded`);
-  } catch (error) {
-    grid.innerHTML = "";
-    tableBody.innerHTML = "";
-    emptyState.hidden = false;
-    setStatus(error.message || "Unable to load documents", true);
-  }
-};
-
-const deleteDocument = async (documentId) => {
-  const confirmed = window.confirm("Delete this document and its comments?");
-  if (!confirmed) return;
-  setStatus("Deleting document...");
-  try {
-    await apiFetch(`/api/documents/${documentId}`, { method: "DELETE" });
-    await loadDocuments();
-  } catch (error) {
-    setStatus(error.message || "Unable to delete document", true);
-  }
-};
-
-const reindexDocument = async (documentId) => {
-  setStatus("Reindexing document...");
-  try {
-    await apiFetch(`/api/documents/${documentId}/index`, { method: "POST" });
-    await loadDocuments();
-  } catch (error) {
-    setStatus(error.message || "Unable to reindex document", true);
-  }
-};
-
-grid.addEventListener("click", (event) => {
-  const card = event.target.closest(".document-card");
-  const action = event.target.closest(".action-link");
-  if (!card || action) return;
-  window.location.href = detailUrl(card.dataset.id);
-});
-
-tableBody.addEventListener("click", (event) => {
-  const deleteLink = event.target.closest("[data-delete-id]");
-  if (deleteLink) {
-    event.preventDefault();
-    deleteDocument(deleteLink.dataset.deleteId);
-    return;
-  }
-  const reindexLink = event.target.closest("[data-index-id]");
-  if (reindexLink) {
-    event.preventDefault();
-    reindexDocument(reindexLink.dataset.indexId);
-  }
-});
-
-uploadForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const formData = new FormData(uploadForm);
-  const file = formData.get("file");
-  if (!(file instanceof File) || !file.name) {
-    setStatus("Choose a file before uploading", true);
+// fetch docs from backend, then apply search locally
+async function loadDocuments() {
+  const token = getToken();
+  if (!token) {
+    alert("You must log in first.");
+    window.location.href = "login-signup.html";
     return;
   }
 
-  setStatus("Uploading document...");
+  const { view, dtype, sort } = getFilterParams();
+  const url = `${API_BASE}/documents?view=${encodeURIComponent(view)}&dtype=${encodeURIComponent(dtype)}&sort=${encodeURIComponent(sort)}`;
+
   try {
-    await fetch(apiUrl("/api/documents"), {
-      method: "POST",
-      body: formData,
-    }).then(async (response) => {
-      if (!response.ok) {
-        const payload = await response.json().catch(() => ({}));
-        throw new Error(payload.detail || "Upload failed");
-      }
-      return response.json();
+    const res = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
     });
-    uploadForm.reset();
-    await loadDocuments();
-  } catch (error) {
-    setStatus(error.message || "Upload failed", true);
+
+    if (!res.ok) throw new Error(`Failed to load documents (${res.status})`);
+
+    allDocs = await res.json();
+    applySearchAndRender();
+  } catch (err) {
+    console.error(err);
+    alert("Error loading documents");
   }
-});
+}
 
-[searchInput, departmentFilter, kindFilter, pinnedFilter].forEach((node) => {
-  node.addEventListener(node.tagName === "INPUT" ? "input" : "change", loadDocuments);
-});
+function applySearchAndRender() {
+  const q = getSearchText();
 
-applyInitialSearch();
-loadDocuments();
-})();
+  let docs = allDocs;
+
+  if (q) {
+    docs = allDocs.filter((d) => {
+      const filename = (d.filename || "").toLowerCase();
+      const owner = (d.owner_name || "").toLowerCase();
+      const dept = (d.department || "").toLowerCase();
+      return filename.includes(q) || owner.includes(q) || dept.includes(q);
+    });
+  }
+
+  renderGrid(docs);
+  renderList(docs);
+}
+
+function renderGrid(docs) {
+  const grid = document.getElementById("documentsGrid");
+  if (!grid) return;
+
+  grid.innerHTML = "";
+
+  docs.forEach((doc) => {
+    const card = document.createElement("div");
+    card.className = "document-card";
+    card.addEventListener("click", () => openDoc(doc));
+
+    const iconLetter = getIconLetter(doc.filename);
+    const updatedText = formatDatePretty(doc.uploaded_at);
+    const sizeText = formatBytes(doc.size_bytes);
+
+    const pinnedPill = doc.pinned ? `<span class="label-pill">Pinned</span>` : "";
+    const deptPill = `<span class="label-pill">${escapeHtml(doc.department || "—")}</span>`;
+
+    card.innerHTML = `
+      <div class="doc-icon">${escapeHtml(iconLetter)}</div>
+      <h3>${escapeHtml(doc.filename || "Untitled")}</h3>
+      <div class="meta">${escapeHtml(doc.department || "—")} • Updated ${escapeHtml(updatedText)} • ${escapeHtml(sizeText)}</div>
+      <div class="labels">
+        ${pinnedPill}
+        ${deptPill}
+      </div>
+    `;
+
+    grid.appendChild(card);
+  });
+}
+
+function renderList(docs) {
+  const tbody = document.getElementById("documentsTableBody");
+  if (!tbody) return;
+
+  tbody.innerHTML = "";
+
+  docs.forEach((doc) => {
+    const tr = document.createElement("tr");
+
+    const iconLetter = getIconLetter(doc.filename);
+    const ownerText = doc.owner_name || "Unknown";
+    const lastOpenedText = formatDatePretty(doc.last_opened_at);
+    const lastModifiedText = formatDatePretty(doc.uploaded_at);
+    const sizeText = formatBytes(doc.size_bytes);
+
+    tr.innerHTML = `
+      <td class="doc-name-cell">
+        <span class="small-icon">${escapeHtml(iconLetter)}</span>
+        ${escapeHtml(doc.filename || "Untitled")}
+      </td>
+      <td>${escapeHtml(ownerText)}</td>
+      <td>${escapeHtml(doc.department || "—")}</td>
+      <td>${escapeHtml(lastOpenedText)}</td>
+      <td>${escapeHtml(lastModifiedText)}</td>
+      <td>${escapeHtml(sizeText)}</td>
+      <td class="actions">
+        <a href="#" class="open-link">Open</a>
+        <a href="#" class="download-link">Download</a>
+      </td>
+    `;
+
+    tr.querySelector(".open-link").addEventListener("click", (e) => {
+      e.preventDefault();
+      openDoc(doc);
+    });
+
+    tr.querySelector(".download-link").addEventListener("click", (e) => {
+      e.preventDefault();
+      downloadDoc(doc.id, doc.filename);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+function openDoc(doc) {
+  const url = new URL("documentView.html", window.location.href);
+  url.searchParams.set("id", doc.id);
+  url.searchParams.set("doc", doc.filename || "");
+  window.location.href = url.toString();
+}
+
+async function downloadDoc(docId, filename) {
+  const token = getToken();
+  if (!token) {
+    alert("You must log in first.");
+    window.location.href = "login-signup.html";
+    return;
+  }
+
+  try {
+    const res = await fetch(`${API_BASE}/documents/${docId}/download`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!res.ok) throw new Error("Download failed");
+
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename || `document-${docId}`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error(err);
+    alert("Error downloading document");
+  }
+}
+
+// Grid/List toggle
+function setupViewToggle() {
+  const gridEl = document.getElementById("documentsGrid");
+  const listWrapper = document.querySelector(".documents-list");
+  const toggle = document.querySelector(".view-toggle");
+  if (!gridEl || !listWrapper || !toggle) return;
+
+  const buttons = toggle.querySelectorAll("button");
+  const gridBtn = buttons[0];
+  const listBtn = buttons[1];
+
+  function showGrid() {
+    gridEl.style.display = "";
+    listWrapper.style.display = "none";
+    gridBtn.classList.add("active");
+    listBtn.classList.remove("active");
+  }
+
+  function showList() {
+    gridEl.style.display = "none";
+    listWrapper.style.display = "";
+    listBtn.classList.add("active");
+    gridBtn.classList.remove("active");
+  }
+
+  showGrid();
+  gridBtn.addEventListener("click", showGrid);
+  listBtn.addEventListener("click", showList);
+}
+
+// Dropdown listeners should still fetch from backend
+function setupDropdownListeners() {
+  const selects = document.querySelectorAll(".documents-toolbar select");
+  selects.forEach((select) => select.addEventListener("change", loadDocuments));
+}
+
+// Search listeners
+function setupSearch() {
+  const input = document.getElementById("searchInput");
+  const btn = document.getElementById("searchBtn");
+
+  if (btn) {
+    btn.addEventListener("click", () => applySearchAndRender());
+  }
+
+  if (input) {
+    // Enter key triggers search
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        applySearchAndRender();
+      }
+    });
+
+    // live search while typing
+    input.addEventListener("input", () => applySearchAndRender());
+  }
+}
+
+// Helpers
+function escapeHtml(str) {
+  if (str === null || str === undefined) return "";
+  return String(str)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function getIconLetter(filename) {
+  const name = (filename || "").trim();
+  return name ? name[0].toUpperCase() : "D";
+}
+
+function formatDatePretty(value) {
+  if (!value) return "—";
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+}
+
+function formatBytes(bytes) {
+  const n = Number(bytes);
+  if (!Number.isFinite(n) || n <= 0) return "—";
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let value = n;
+  let i = 0;
+  while (value >= 1024 && i < units.length - 1) {
+    value /= 1024;
+    i += 1;
+  }
+  const decimals = i === 0 ? 0 : 1;
+  return `${value.toFixed(decimals)} ${units[i]}`;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  setupViewToggle();
+  setupDropdownListeners();
+  setupSearch();
+  loadDocuments();
+});

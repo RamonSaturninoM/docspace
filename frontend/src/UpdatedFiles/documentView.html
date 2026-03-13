@@ -52,9 +52,14 @@
                 </div>
             </div>
 
-            <div class="document-viewer panel">
-                <div id="pageStatus" class="status-line">Loading document...</div>
-                <iframe id="docFrame" src="" title="Document Preview"></iframe>
+            <div class="document-viewer">
+                <!-- Placeholder message -->
+                <p id="viewerPlaceholder">
+                    Document content will load here...
+                </p>
+
+                <!-- Actual file viewer -->
+                <iframe id="docFrame" src="" frameborder="0"></iframe>
             </div>
 
             <div class="comments-section panel">
