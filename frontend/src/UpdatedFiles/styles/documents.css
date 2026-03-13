@@ -12,6 +12,7 @@
 
 .sidebar .chat-box,
 .sidebar .shortcuts,
+.upload-form,
 .documents-header,
 .documents-toolbar,
 .documents-list {
@@ -56,6 +57,28 @@
 .documents-actions {
   display: flex;
   gap: 10px;
+}
+
+.upload-form {
+  display: grid;
+  gap: 10px;
+}
+
+.upload-form input,
+.upload-form textarea {
+  width: 100%;
+  background: #0f182b;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
 }
 
 .btn-primary {
@@ -124,6 +147,22 @@ select {
 .document-card:hover {
   transform: translateY(-2px);
   border-color: #3b82f6;
+}
+
+.card-actions {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+}
+
+.action-link {
+  color: #93c5fd;
+  text-decoration: none;
+  font-size: 13px;
+}
+
+.action-link:hover {
+  text-decoration: underline;
 }
 
 .doc-icon,
@@ -199,6 +238,10 @@ select {
 
 .actions a:hover {
   text-decoration: underline;
+}
+
+.empty-state {
+  padding: 18px;
 }
 
 @media (max-width: 1050px) {

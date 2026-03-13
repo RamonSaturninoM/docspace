@@ -9,13 +9,19 @@ const API_BASE =
   window.DOCSPACE_API_BASE ||
   "http://127.0.0.1:8000";
 
-const addMessage = (text, role) => {
+const addMessage = (text, role, sources = []) => {
   const wrapper = document.createElement("div");
   wrapper.className = `message ${role}`;
   const bubble = document.createElement("div");
   bubble.className = "bubble";
   bubble.textContent = text;
   wrapper.appendChild(bubble);
+  if (sources.length) {
+    const sourceList = document.createElement("div");
+    sourceList.className = "source-list";
+    sourceList.textContent = `Sources: ${sources.map((item) => item.title).join(", ")}`;
+    wrapper.appendChild(sourceList);
+  }
   messages.appendChild(wrapper);
   messages.scrollTop = messages.scrollHeight;
 };
@@ -85,7 +91,7 @@ composer.addEventListener("submit", async (event) => {
 
     const payload = await response.json();
     removeThinkingMessage();
-    addMessage(payload.reply || "No response received.", "assistant");
+    addMessage(payload.reply || "No response received.", "assistant", payload.sources || []);
     setStatus("Connected");
   } catch (error) {
     removeThinkingMessage();

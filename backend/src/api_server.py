@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import tempfile
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Annotated, List
 
@@ -13,19 +14,21 @@ from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel
 
 try:
-    from .chat_engine import chat_with_gemini
+    from .chat_engine import chat_with_documents
     from .document_store import build_document_store
+    from .ingestion_engine import delete_document_vectors, index_document_file
 except ImportError:
-    from chat_engine import chat_with_gemini
+    from chat_engine import chat_with_documents
     from document_store import build_document_store
+    from ingestion_engine import delete_document_vectors, index_document_file
 
 try:
-    from .ingestion_engine import ingest
+    from .ingestion_engine import extract_text
 except ImportError:
     try:
-        from ingestion_engine import ingest
+        from ingestion_engine import extract_text
     except ModuleNotFoundError:
-        ingest = None
+        extract_text = None
 
 
 app = FastAPI(title="Docspace API", version="0.2")
@@ -57,6 +60,10 @@ load_local_env(Path(__file__).resolve().parents[2] / ".env")
 document_store = build_document_store(Path(__file__).resolve().parents[1])
 
 
+def utc_now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
 class ChatRequest(BaseModel):
     message: str
 
@@ -72,10 +79,10 @@ class DocumentUpdateRequest(BaseModel):
 
 @app.post("/api/ingest")
 async def ingest_files(files: List[UploadFile] = File(...)) -> JSONResponse:
-    if ingest is None:
+    if extract_text is None:
         raise HTTPException(
             status_code=503,
-            detail="Ingestion is temporarily unavailable: ingestion_engine.py is missing.",
+            detail="Ingestion is temporarily unavailable.",
         )
 
     if not files:
@@ -97,23 +104,22 @@ async def ingest_files(files: List[UploadFile] = File(...)) -> JSONResponse:
         if saved == 0:
             raise HTTPException(status_code=400, detail="No valid files")
 
-        try:
-            ingest(
-                source_path=temp_path,
-                index_name=os.getenv("PINECONE_INDEX", ""),
-                namespace=os.getenv("PINECONE_NAMESPACE"),
-                chunk_size=int(os.getenv("INGEST_CHUNK_SIZE", "800")),
-                overlap=int(os.getenv("INGEST_OVERLAP", "100")),
-                batch_size=int(os.getenv("INGEST_BATCH_SIZE", "64")),
-                embedding_model=os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2"),
-                cloud=os.getenv("PINECONE_CLOUD", "aws"),
-                region=os.getenv("PINECONE_REGION", "us-east-1"),
-                dry_run=os.getenv("INGEST_DRY_RUN", "false").lower() == "true",
-            )
-        except Exception as exc:  # pragma: no cover
-            raise HTTPException(status_code=500, detail=str(exc)) from exc
+        extracted = 0
+        failures: list[str] = []
+        for path in temp_path.iterdir():
+            try:
+                if extract_text(path):
+                    extracted += 1
+            except Exception as exc:
+                failures.append(f"{path.name}: {exc}")
 
-    return JSONResponse({"message": f"Ingestion started for {saved} file(s)."})
+    return JSONResponse(
+        {
+            "message": f"Processed {saved} file(s).",
+            "indexable_files": extracted,
+            "failures": failures,
+        }
+    )
 
 
 @app.get("/healthz")
@@ -165,6 +171,23 @@ async def create_document(
         description=description,
         pinned=pinned,
     )
+    document_store.set_index_status(document["id"], status="processing", error="")
+    try:
+        result = index_document_file(document, saved_file.path)
+        document = document_store.set_index_status(
+            document["id"],
+            status="ready",
+            error="",
+            chunk_count=result["chunk_count"],
+            indexed_at=utc_now_iso(),
+        )
+    except Exception as exc:
+        document = document_store.set_index_status(
+            document["id"],
+            status="failed",
+            error=str(exc),
+            chunk_count=0,
+        )
     return JSONResponse(document, status_code=201)
 
 
@@ -201,10 +224,51 @@ def update_document(document_id: str, request: DocumentUpdateRequest) -> JSONRes
 
 @app.delete("/api/documents/{document_id}")
 def delete_document(document_id: str) -> JSONResponse:
+    document = document_store.get_document(document_id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    try:
+        delete_document_vectors(document_id)
+    except Exception:
+        pass
     deleted = document_store.delete_document(document_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Document not found")
     return JSONResponse({"deleted": True})
+
+
+@app.post("/api/documents/{document_id}/index")
+def reindex_document(document_id: str) -> JSONResponse:
+    document = document_store.get_document(document_id)
+    if document is None:
+        raise HTTPException(status_code=404, detail="Document not found")
+    file_path = document_store.file_path(document_id)
+    if file_path is None:
+        raise HTTPException(status_code=404, detail="Document file not found")
+
+    document_store.set_index_status(document_id, status="processing", error="")
+    try:
+        delete_document_vectors(document_id)
+    except Exception:
+        pass
+
+    try:
+        result = index_document_file(document, file_path)
+        refreshed = document_store.set_index_status(
+            document_id,
+            status="ready",
+            error="",
+            chunk_count=result["chunk_count"],
+            indexed_at=utc_now_iso(),
+        )
+    except Exception as exc:
+        refreshed = document_store.set_index_status(
+            document_id,
+            status="failed",
+            error=str(exc),
+            chunk_count=0,
+        )
+    return JSONResponse(refreshed)
 
 
 @app.post("/api/documents/{document_id}/comments")
@@ -229,13 +293,11 @@ def chat(request: ChatRequest) -> JSONResponse:
         raise HTTPException(status_code=400, detail="Message cannot be empty")
 
     try:
-        reply = chat_with_gemini(message)
-    except ValueError as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        payload = chat_with_documents(message)
     except RuntimeError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
-    return JSONResponse({"reply": reply})
+    return JSONResponse(payload)
 
 
 @app.post("/api/chat/respond")

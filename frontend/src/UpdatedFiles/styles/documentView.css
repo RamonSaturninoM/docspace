@@ -38,6 +38,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
+}
+
+.document-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .document-viewer iframe {
@@ -56,9 +63,11 @@
 #commentForm {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
   margin-top: 14px;
 }
 
+#commentAuthor,
 #commentInput {
   flex: 1;
   border: 1px solid var(--border);
@@ -66,6 +75,22 @@
   padding: 10px 12px;
   background: #0f182b;
   color: var(--text);
+}
+
+.comment-meta {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.btn-secondary {
+  background: transparent;
+  border-color: var(--border);
+  text-decoration: none;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
 }
 
 @media (max-width: 950px) {

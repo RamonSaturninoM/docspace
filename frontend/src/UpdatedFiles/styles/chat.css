@@ -145,6 +145,14 @@ body {
   background: linear-gradient(140deg, #1b7f7a, #274690);
 }
 
+.source-list {
+  max-width: min(72ch, 100%);
+  margin-top: 6px;
+  padding: 0 6px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}
+
 .message.system .bubble {
   background: rgba(255, 123, 58, 0.2);
   color: #fff7f0;

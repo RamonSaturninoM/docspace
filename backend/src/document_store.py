@@ -187,6 +187,10 @@ class JsonDocumentStore:
             "mime_type": saved_file.mime_type or "application/octet-stream",
             "size_bytes": saved_file.size_bytes,
             "pinned": pinned,
+            "index_status": "pending",
+            "indexed_at": None,
+            "index_error": "",
+            "chunk_count": 0,
             "created_at": now,
             "updated_at": now,
         }
@@ -265,6 +269,37 @@ class JsonDocumentStore:
             self._write(payload)
             return comment
 
+    def set_index_status(
+        self,
+        document_id: str,
+        *,
+        status: str,
+        error: str = "",
+        chunk_count: int | None = None,
+        indexed_at: str | None = None,
+    ) -> dict[str, Any] | None:
+        with self.lock:
+            payload = self._load()
+            for item in payload["documents"]:
+                if item["id"] != document_id:
+                    continue
+                item["index_status"] = status
+                item["index_error"] = error
+                item["updated_at"] = isoformat(utc_now())
+                if chunk_count is not None:
+                    item["chunk_count"] = chunk_count
+                if indexed_at is not None:
+                    item["indexed_at"] = indexed_at
+                self._record_activity(
+                    payload,
+                    action="INDEX",
+                    document_id=document_id,
+                    detail=f"Index status changed to {status} for {item['title']}",
+                )
+                self._write(payload)
+                return self._document_with_comments(item, payload["comments"])
+        return None
+
     def dashboard_stats(self) -> dict[str, Any]:
         payload = self._load()
         documents = payload["documents"]
@@ -316,10 +351,26 @@ class PostgresDocumentStore:
                         mime_type TEXT NOT NULL,
                         size_bytes BIGINT NOT NULL,
                         pinned BOOLEAN NOT NULL DEFAULT FALSE,
+                        index_status TEXT NOT NULL DEFAULT 'pending',
+                        indexed_at TIMESTAMPTZ NULL,
+                        index_error TEXT NOT NULL DEFAULT '',
+                        chunk_count INTEGER NOT NULL DEFAULT 0,
                         created_at TIMESTAMPTZ NOT NULL,
                         updated_at TIMESTAMPTZ NOT NULL
                     )
                     """
+                )
+                cur.execute(
+                    "ALTER TABLE documents ADD COLUMN IF NOT EXISTS index_status TEXT NOT NULL DEFAULT 'pending'"
+                )
+                cur.execute(
+                    "ALTER TABLE documents ADD COLUMN IF NOT EXISTS indexed_at TIMESTAMPTZ NULL"
+                )
+                cur.execute(
+                    "ALTER TABLE documents ADD COLUMN IF NOT EXISTS index_error TEXT NOT NULL DEFAULT ''"
+                )
+                cur.execute(
+                    "ALTER TABLE documents ADD COLUMN IF NOT EXISTS chunk_count INTEGER NOT NULL DEFAULT 0"
                 )
                 cur.execute(
                     """
@@ -383,6 +434,10 @@ class PostgresDocumentStore:
             "mime_type": row["mime_type"],
             "size_bytes": row["size_bytes"],
             "pinned": row["pinned"],
+            "index_status": row.get("index_status", "pending"),
+            "indexed_at": isoformat(row["indexed_at"]) if row.get("indexed_at") else None,
+            "index_error": row.get("index_error", ""),
+            "chunk_count": row.get("chunk_count", 0),
             "created_at": isoformat(row["created_at"]),
             "updated_at": isoformat(row["updated_at"]),
             "comments": comments.get(row["id"], []),
@@ -458,9 +513,10 @@ class PostgresDocumentStore:
                     """
                     INSERT INTO documents (
                         id, title, filename, stored_name, department, owner_name, description,
-                        kind, mime_type, size_bytes, pinned, created_at, updated_at
+                        kind, mime_type, size_bytes, pinned, index_status, indexed_at, index_error,
+                        chunk_count, created_at, updated_at
                     )
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """,
                     (
                         document_id,
@@ -474,6 +530,10 @@ class PostgresDocumentStore:
                         saved_file.mime_type or "application/octet-stream",
                         saved_file.size_bytes,
                         pinned,
+                        "pending",
+                        None,
+                        "",
+                        0,
                         now,
                         now,
                     ),
@@ -562,6 +622,45 @@ class PostgresDocumentStore:
             conn.commit()
         comment["created_at"] = isoformat(comment["created_at"])
         return comment
+
+    def set_index_status(
+        self,
+        document_id: str,
+        *,
+        status: str,
+        error: str = "",
+        chunk_count: int | None = None,
+        indexed_at: str | None = None,
+    ) -> dict[str, Any] | None:
+        indexed_value = None
+        if indexed_at:
+            indexed_value = datetime.fromisoformat(indexed_at)
+        with self._connect() as conn:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    UPDATE documents
+                    SET index_status = %s,
+                        index_error = %s,
+                        chunk_count = COALESCE(%s, chunk_count),
+                        indexed_at = COALESCE(%s, indexed_at),
+                        updated_at = %s
+                    WHERE id = %s
+                    RETURNING *
+                    """,
+                    (status, error, chunk_count, indexed_value, utc_now(), document_id),
+                )
+                row = cur.fetchone()
+                if row is None:
+                    return None
+                self._record_activity(
+                    cur,
+                    action="INDEX",
+                    document_id=document_id,
+                    detail=f"Index status changed to {status} for {row['title']}",
+                )
+            conn.commit()
+        return self.get_document(document_id)
 
     def dashboard_stats(self) -> dict[str, Any]:
         with self._connect() as conn:

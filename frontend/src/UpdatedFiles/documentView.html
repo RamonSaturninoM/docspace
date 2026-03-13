@@ -6,14 +6,14 @@
     <title>View Document | Docspace Portal</title>
     <link rel="stylesheet" href="styles/shared.css">
     <link rel="stylesheet" href="styles/documentView.css">
+    <script defer src="scripts/api.js"></script>
     <script defer src="scripts/documentView.js"></script>
 </head>
 <body>
     <header class="site-header">
         <h1>Docspace Portal</h1>
         <div class="top-nav">
-            <input type="text" id="searchInput" class="search-input" placeholder="Search documents...">
-            <button id="searchBtn" class="btn">Search</button>
+            <input type="text" class="search-input" placeholder="Search documents...">
             <nav class="site-nav">
                 <a href="portal.html">Home</a>
                 <a href="documents.html" class="active">Documents</a>
@@ -38,27 +38,31 @@
 
         <section class="content">
             <div class="document-header panel">
-                <h2 id="docTitle">Document Title Placeholder</h2>
-                <button id="pinBtn" class="btn">Pin Document</button>
+                <div>
+                    <h2 id="docTitle">Loading document...</h2>
+                    <p id="docMeta" class="muted"></p>
+                    <p id="docDescription" class="muted"></p>
+                    <p id="docIndexMeta" class="muted"></p>
+                </div>
+                <div class="document-actions">
+                    <a id="openFileBtn" class="btn btn-secondary" href="#" target="_blank" rel="noreferrer">Open File</a>
+                    <button id="reindexBtn" class="btn btn-secondary">Reindex</button>
+                    <button id="pinBtn" class="btn">Pin Document</button>
+                    <button id="deleteBtn" class="btn btn-danger">Delete</button>
+                </div>
             </div>
 
             <div class="document-viewer panel">
-                <p>Document content would be displayed here (PDF, Word, etc.).</p>
+                <div id="pageStatus" class="status-line">Loading document...</div>
                 <iframe id="docFrame" src="" title="Document Preview"></iframe>
             </div>
 
             <div class="comments-section panel">
                 <h3>Comments</h3>
-                <div id="commentsList">
-                    <div class="comment">
-                        <strong>Jane Doe:</strong> Please review section 2.
-                    </div>
-                    <div class="comment">
-                        <strong>John Smith:</strong> Can we update the Q1 data?
-                    </div>
-                </div>
+                <div id="commentsList"></div>
 
                 <form id="commentForm">
+                    <input type="text" id="commentAuthor" placeholder="Your name" value="Docspace User">
                     <input type="text" id="commentInput" placeholder="Add a comment...">
                     <button type="submit" class="btn">Post</button>
                 </form>

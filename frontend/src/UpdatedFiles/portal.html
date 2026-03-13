@@ -6,6 +6,7 @@
   <title>Docspace Portal Home</title>
   <link rel="stylesheet" href="styles/shared.css">
   <link rel="stylesheet" href="styles/portal.css">
+  <script defer src="scripts/api.js"></script>
   <script defer src="scripts/portal.js"></script>
 </head>
 <body>
@@ -46,20 +47,17 @@
     </aside>
 
     <section class="content">
+      <div id="portalStatus" class="panel status-line">Loading documents...</div>
+
       <div class="pinned-docs panel">
         <h2>Pinned Documents</h2>
         <ul id="pinnedList">
-          <li><a href="documentView.html?doc=Company%20Policy%202026.pdf">Company Policy - 2026.pdf</a></li>
-          <li><a href="documentView.html?doc=Quarterly%20Report%20Q1%202026.docx">Quarterly Report Q1 2026.docx</a></li>
         </ul>
       </div>
 
       <div class="recent-docs panel">
         <h2>Recent Documents</h2>
         <ul id="docList">
-          <li><a href="documentView.html?doc=Company%20Policy%202026.pdf">Company Policy - 2026.pdf</a></li>
-          <li><a href="documentView.html?doc=Quarterly%20Report%20Q1%202026.docx">Quarterly Report Q1 2026.docx</a></li>
-          <li><a href="documentView.html?doc=HR%20Guidelines%20Updated.docx">HR Guidelines - Updated.docx</a></li>
         </ul>
       </div>
 
