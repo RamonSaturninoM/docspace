@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Departments | Docspace Portal</title>
+  <link rel="stylesheet" href="styles/shared.css">
   <link rel="stylesheet" href="styles/departments.css">
 </head>
 <body>
@@ -22,17 +23,20 @@
       <a href="portal.html">Home</a>
       <a href="departments.html" class="active">Departments</a>
       <a href="documents.html">Documents</a>
-      <a href="#">Profile</a>
+      <a href="dashboard.html">API Dashboard</a>
+      <a href="chat.html">Chat</a>
       <a href="login-signup.html">Logout</a>
     </nav>
   </div>
 </header>
 
-<main>
-
-  <section class="intro">
-    <h2>Departments</h2>
-    <p>Select a department to view its documents and updates.</p>
+<main class="page-shell">
+  <section class="intro panel">
+    <div>
+      <h2>Departments</h2>
+      <p>Select a department to view its documents and updates.</p>
+    </div>
+    <a class="chat-cta" href="chat.html">Open Chat</a>
   </section>
 
   <section id="adminControls" class="admin-controls hidden">
@@ -72,7 +76,6 @@
   <section class="department-grid" id="departmentGrid">
     <p id="departmentsStatus">Loading departments...</p>
   </section>
-
 </main>
 
 <script src="scripts/departments.js"></script>

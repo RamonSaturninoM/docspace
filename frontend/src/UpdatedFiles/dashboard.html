@@ -1,104 +1,75 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>API Usage Dashboard</title>
+    <link rel="stylesheet" href="styles/shared.css">
     <link rel="stylesheet" type="text/css" href="styles/dashboard.css">
+    <script defer src="scripts/api.js"></script>
+    <script defer src="scripts/dashboard.js"></script>
 </head>
-
 <body>
-
-    <header>
+    <header class="site-header">
         <h1>API Usage Dashboard</h1>
-        <nav>
-            <a href="#">Home</a>
-            <a href="#">Docs</a>
-            <a href="#">API</a>
-            <a href="#">Dashboard</a>
-            <a href="#">Logout</a>
-        </nav>
+        <div class="top-nav">
+            <input type="text" class="search-input" placeholder="Search endpoints...">
+            <button class="btn">Search</button>
+            <nav class="site-nav">
+                <a href="portal.html">Home</a>
+                <a href="documents.html">Documents</a>
+                <a href="departments.html">Departments</a>
+                <a href="dashboard.html" class="active">API Dashboard</a>
+                <a href="chat.html">Chat</a>
+                <a href="login-signup.html">Logout</a>
+            </nav>
+        </div>
     </header>
 
-    <div class="container">
-
+    <main class="page-shell">
+        <div id="dashboardStatus" class="panel status-line">Loading API metrics...</div>
         <div class="stats">
-            <div class="card">
-                <h3>Total API Requests (This Month)</h3>
-                <div class="value">124,580</div>
+            <div class="card panel">
+                <h3>Total Documents</h3>
+                <div id="documentsTotal" class="value">-</div>
             </div>
-            <div class="card">
-                <h3>Successful Requests</h3>
-                <div class="value">120,430</div>
+            <div class="card panel">
+                <h3>Pinned Documents</h3>
+                <div id="pinnedTotal" class="value">-</div>
             </div>
-            <div class="card">
-                <h3>Failed Requests</h3>
-                <div class="value">4,150</div>
+            <div class="card panel">
+                <h3>Total Comments</h3>
+                <div id="commentsTotal" class="value">-</div>
             </div>
-            <div class="card">
-                <h3>Active API Keys</h3>
-                <div class="value">18</div>
+            <div class="card panel">
+                <h3>Stored File Size</h3>
+                <div id="storageTotal" class="value">-</div>
             </div>
         </div>
 
-        <h2 class="section-title">Recent API Activity</h2>
+        <div class="table-head">
+            <h2 class="section-title">Recent API Activity</h2>
+            <a class="chat-cta" href="chat.html">Open Chat</a>
+        </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Endpoint</th>
-                    <th>Method</th>
-                    <th>Status</th>
-                    <th>Response Time</th>
-                    <th>Timestamp</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>/api/documents</td>
-                    <td>GET</td>
-                    <td class="status-success">200 OK</td>
-                    <td>120 ms</td>
-                    <td>2026-02-02 14:21</td>
-                </tr>
-                <tr>
-                    <td>/api/documents</td>
-                    <td>POST</td>
-                    <td class="status-success">201 Created</td>
-                    <td>240 ms</td>
-                    <td>2026-02-02 14:18</td>
-                </tr>
-                <tr>
-                    <td>/api/auth/login</td>
-                    <td>POST</td>
-                    <td class="status-error">401 Unauthorized</td>
-                    <td>95 ms</td>
-                    <td>2026-02-02 14:15</td>
-                </tr>
-                <tr>
-                    <td>/api/departments</td>
-                    <td>GET</td>
-                    <td class="status-warning">304 Not Modified</td>
-                    <td>80 ms</td>
-                    <td>2026-02-02 14:10</td>
-                </tr>
-                <tr>
-                    <td>/api/documents/42</td>
-                    <td>DELETE</td>
-                    <td class="status-success">204 No Content</td>
-                    <td>160 ms</td>
-                    <td>2026-02-02 14:05</td>
-                </tr>
-            </tbody>
-        </table>
-
-    </div>
+        <div class="table-wrap panel">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Endpoint</th>
+                        <th>Method</th>
+                        <th>Status</th>
+                        <th>Response Time</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody id="activityTableBody"></tbody>
+            </table>
+        </div>
+    </main>
 
     <footer>
         © 2026 Docspace · API Monitoring
     </footer>
-
 </body>
-
 </html>

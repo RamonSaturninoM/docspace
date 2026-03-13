@@ -13,8 +13,35 @@ const viewerPlaceholder = document.getElementById("viewerPlaceholder");
 
 // Comments
 const commentForm = document.getElementById("commentForm");
+const commentAuthor = document.getElementById("commentAuthor");
 const commentInput = document.getElementById("commentInput");
-const commentsList = document.getElementById("commentsList");
+const docFrame = document.getElementById("docFrame");
+const openFileBtn = document.getElementById("openFileBtn");
+const pageStatus = document.getElementById("pageStatus");
+
+let currentDocument = null;
+
+const setStatus = (message, isError = false) => {
+  pageStatus.textContent = message;
+  pageStatus.dataset.error = isError ? "true" : "false";
+};
+
+const renderComments = (comments) => {
+  if (!comments.length) {
+    commentsList.innerHTML = '<div class="comment muted">No comments yet.</div>';
+    return;
+  }
+  commentsList.innerHTML = comments
+    .map(
+      (comment) => `
+        <div class="comment">
+          <strong>${comment.author}:</strong> ${comment.body}
+          <div class="comment-meta">${formatDate(comment.created_at)}</div>
+        </div>
+      `
+    )
+    .join("");
+};
 
 // Current doc state
 let currentDocId = null;

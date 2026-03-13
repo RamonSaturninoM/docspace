@@ -4,124 +4,111 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Documents | Docspace Portal</title>
+  <link rel="stylesheet" href="styles/shared.css">
   <link rel="stylesheet" href="styles/documents.css">
+  <script defer src="scripts/api.js"></script>
+  <script defer src="scripts/documents.js"></script>
 </head>
 <body>
-
-  <header>
+  <header class="site-header">
     <h1>Docspace Portal</h1>
     <div class="top-nav">
-      <input type="text" id="searchInput" placeholder="Search documents...">
-      <button id="searchBtn">Search</button>
-      <nav>
+      <input type="text" id="documentsSearch" class="search-input" placeholder="Search documents...">
+      <nav class="site-nav">
         <a href="portal.html">Home</a>
         <a href="documents.html" class="active">Documents</a>
         <a href="departments.html">Departments</a>
-        <a href="#">Profile</a>
+        <a href="dashboard.html">API Dashboard</a>
+        <a href="chat.html">Chat</a>
         <a href="login-signup.html">Logout</a>
       </nav>
     </div>
   </header>
 
-  <div class="main-container">
-
+  <div class="page-shell main-container">
     <aside class="sidebar">
-      <div class="chat-box">
+      <div class="chat-box panel">
         <h2>AI Assistant</h2>
         <p>Ask me to find files, summarize documents, or locate department resources.</p>
+        <a class="chat-cta" href="chat.html">Open Chat</a>
       </div>
 
-      <div class="shortcuts">
-        <h2>Shortcuts</h2>
-        <ul>
-          <li><a href="#">My Drive</a></li>
-          <li><a href="#">Shared with me</a></li>
-          <li><a href="#">Recent</a></li>
-          <li><a href="#">Starred</a></li>
-          <li><a href="#">Trash</a></li>
-        </ul>
-      </div>
+      <form id="uploadForm" class="panel upload-form">
+        <h2>Upload Document</h2>
+        <input type="file" name="file" required>
+        <input type="text" name="title" placeholder="Title (optional)">
+        <input type="text" name="owner" placeholder="Owner" value="Docspace User">
+        <input type="text" name="department" placeholder="Department" value="General">
+        <textarea name="description" rows="4" placeholder="Short description"></textarea>
+        <label class="checkbox-row">
+          <input type="checkbox" name="pinned" value="true">
+          Pin after upload
+        </label>
+        <button class="btn btn-primary" type="submit">Upload</button>
+      </form>
     </aside>
 
     <section class="content">
-
-      <div class="documents-header">
+      <div class="documents-header panel">
         <div>
           <h2>All Documents</h2>
-          <p class="muted">Browse and manage documents across departments, similar to a shared drive.</p>
+          <p class="muted">Dynamic document library backed by the API.</p>
         </div>
-
-        <div class="documents-actions">
-          <button class="btn-secondary">Upload</button>
-          <button class="btn-primary">+ New Document</button>
-        </div>
+        <div id="documentsStatus" class="status-line">Loading documents...</div>
       </div>
 
-      <div class="documents-toolbar">
+      <div class="documents-toolbar panel">
         <div class="toolbar-left">
-          <span class="muted">Showing</span>
-          <select>
-            <option>All documents</option>
-            <option>My documents</option>
-            <option>Pinned only</option>
-            <option>Shared with me</option>
+          <select id="departmentFilter">
+            <option value="">All departments</option>
+            <option value="General">General</option>
+            <option value="HR">HR</option>
+            <option value="Finance">Finance</option>
+            <option value="Marketing">Marketing</option>
+            <option value="Engineering">Engineering</option>
           </select>
 
-          <select>
-            <option>All types</option>
-            <option>PDF</option>
-            <option>Word / Docs</option>
-            <option>Spreadsheet</option>
-            <option>Presentation</option>
+          <select id="kindFilter">
+            <option value="">All file types</option>
+            <option value="pdf">PDF</option>
+            <option value="doc">Docs</option>
+            <option value="sheet">Sheets</option>
+            <option value="slides">Slides</option>
+            <option value="image">Images</option>
+            <option value="text">Text</option>
+            <option value="file">Other</option>
           </select>
         </div>
 
         <div class="toolbar-right">
-          <span>Sort by</span>
-          <select>
-            <option>Recently opened</option>
-            <option>Recently modified</option>
-            <option>Name (A–Z)</option>
-            <option>Owner</option>
+          <select id="pinnedFilter">
+            <option value="">All documents</option>
+            <option value="true">Pinned only</option>
           </select>
-
-          <div class="view-toggle">
-            <button class="active">Grid</button>
-            <button>List</button>
-          </div>
         </div>
       </div>
 
-      <!-- GRID VIEW -->
-      <div class="documents-grid" id="documentsGrid">
-        <!-- Documents will be inserted here by JS -->
-      </div>
+      <div id="emptyState" class="panel empty-state" hidden>No documents matched the current filters.</div>
 
-      <!-- LIST VIEW -->
-      <div class="documents-list">
+      <div id="documentsGrid" class="documents-grid"></div>
+
+      <div class="documents-list panel">
         <table>
           <thead>
             <tr>
               <th>Name</th>
               <th>Owner</th>
               <th>Department</th>
-              <th>Last opened</th>
+              <th>Comments</th>
               <th>Last modified</th>
               <th>Size</th>
               <th>Actions</th>
             </tr>
           </thead>
-          <tbody id="documentsTableBody">
-            <!-- Documents will be inserted here by JS -->
-          </tbody>
+          <tbody id="documentsTableBody"></tbody>
         </table>
       </div>
-
     </section>
   </div>
-
-  <!-- CONNECT DOCUMENTS SCRIPT -->
-  <script src="scripts/documents.js"></script>
-
 </body>
 </html>

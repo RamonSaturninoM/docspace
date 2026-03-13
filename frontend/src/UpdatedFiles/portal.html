@@ -3,70 +3,65 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Docspcae Portal Home</title>
+  <title>Docspace Portal Home</title>
+  <link rel="stylesheet" href="styles/shared.css">
   <link rel="stylesheet" href="styles/portal.css">
+  <script defer src="scripts/api.js"></script>
   <script defer src="scripts/portal.js"></script>
 </head>
 <body>
-  <!-- HEADER -->
-  <header>
+  <header class="site-header">
     <h1>Docspace Portal</h1>
     <div class="top-nav">
-      <input type="text" id="searchInput" placeholder="Search documents...">
-      <button id="searchBtn">Search</button>
-      <nav>
-        <a href="portal.html">Home</a>
+      <input type="text" id="searchInput" class="search-input" placeholder="Search documents...">
+      <button id="searchBtn" class="btn">Search</button>
+      <nav class="site-nav">
+        <a href="portal.html" class="active">Home</a>
         <a href="documents.html">Documents</a>
         <a href="departments.html">Departments</a>
-        <a href="#">Profile</a>
+        <a href="dashboard.html">API Dashboard</a>
+        <a href="chat.html">Chat</a>
         <a href="login-signup.html">Logout</a>
       </nav>
     </div>
   </header>
 
-  <!-- MAIN CONTAINER -->
-  <div class="main-container">
-
-    <!-- LEFT PANEL: AI Assistant + Quick Links -->
+  <div class="page-shell main-container">
     <aside class="sidebar">
-      <div class="ai-chat">
+      <div class="ai-chat panel">
         <h2>AI Assistant</h2>
         <div class="chat-box">
           <p>Ask me to find documents or information.</p>
         </div>
+        <a class="chat-cta" href="chat.html">Open Chat</a>
       </div>
 
-      <div class="quick-links">
+      <div class="quick-links panel">
         <h2>Quick Links</h2>
         <ul>
-          <li><a href="#">View All Documents</a></li>
-          <li><a href="#">My Department</a></li>
-          <li><a href="#">Recent Uploads</a></li>
+          <li><a href="documents.html">View All Documents</a></li>
+          <li><a href="departments.html">My Department</a></li>
+          <li><a href="documents.html">Recent Uploads</a></li>
         </ul>
       </div>
     </aside>
 
-    <!-- RIGHT PANEL: Pinned Docs + Recent Docs + Department Updates -->
     <section class="content">
+      <div id="portalStatus" class="panel status-line">Loading documents...</div>
 
-      <div class="pinned-docs">
+      <div class="pinned-docs panel">
         <h2>Pinned Documents</h2>
         <ul id="pinnedList">
-          <li><a href="document.html?doc=Company%20Policy%202026.pdf">Company Policy - 2026.pdf</a></li>
-          <li><a href="document.html?doc=Quarterly%20Report%20Q1%202026.docx">Quarterly Report Q1 2026.docx</a></li>
         </ul>
       </div>
 
-      <div class="recent-docs">
+      <div class="recent-docs panel">
         <h2>Recent Documents</h2>
         <ul id="docList">
-          <li><a href="document.html?doc=Company%20Policy%202026.pdf">Company Policy - 2026.pdf</a></li>
-          <li><a href="document.html?doc=Quarterly%20Report%20Q1%202026.docx">Quarterly Report Q1 2026.docx</a></li>
-          <li><a href="document.html?doc=HR%20Guidelines%20Updated.docx">HR Guidelines - Updated.docx</a></li>
         </ul>
       </div>
 
-      <div class="department-updates">
+      <div class="department-updates panel">
         <h2>Department Updates</h2>
         <ul>
           <li>Engineering: New project template uploaded.</li>
@@ -74,7 +69,6 @@
           <li>HR: Employee handbook updated.</li>
         </ul>
       </div>
-
     </section>
   </div>
 </body>

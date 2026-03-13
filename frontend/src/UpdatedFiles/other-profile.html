@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Profile</title>
+
+    <link rel="stylesheet" href="styles/profile.css">
+    <link rel="stylesheet" href="styles/portal.css">
+
+</head>
+
+<body>
+
+    <header>
+        <h1>Docspace Profile</h1>
+        <div class="top-nav">
+            <input type="text" id="searchInput" placeholder="Search documents...">
+            <button id="searchBtn">Search</button>
+            <nav>
+                <a href="portal.html">Home</a>
+                <a href="documents.html">Documents</a>
+                <a href="departments.html">Departments</a>
+                <a href="#">Profile</a>
+                <a href="login-signup.html">Logout</a>
+            </nav>
+        </div>
+    </header>
+
+
+    <main class="profile-wrapper">
+
+        <div class="profile-box">
+
+            <!-- HEADER -->
+
+            <div class="profile-header-row">
+
+                <div>
+                    <h2 class="profile-name">Employee: Daniel Carter</h2>
+                    <p class="profile-role">Chief Executive Officer</p>
+                </div>
+
+            </div>
+
+
+            <!-- AVATAR -->
+
+            <div class="avatar-container">
+                <img src="images/random-profile-pic.jpg">
+            </div>
+
+
+            <!-- READ ONLY META -->
+
+            <div class="profile-meta">
+
+                <p>Email: daniel.carter@company.com</p>
+                <p>Department: Executive Leadership</p>
+                <p>Employee ID: CEO-0001</p>
+                <p>Access Level: Enterprise Administrator</p>
+
+            </div>
+
+
+            <!-- ACCESS AUTHORITY -->
+
+            <div class="activity-grid">
+
+                <div class="activity-card">
+                    <h4>Profile Access Granted By</h4>
+                    <p>Company Security System</p>
+                </div>
+
+            </div>
+
+
+            <!-- DOCUMENT ACTIVITY SUMMARY -->
+
+            <div class="activity-grid">
+
+                <div class="activity-card">
+                    <h4>Recent Document Activity</h4>
+
+                    <p>Employee Handbook — Viewed</p>
+                    <p>Financial Strategy Report — Approved</p>
+                    <p>Security Protocol Manual — Accessed</p>
+
+                </div>
+
+            </div>
+
+
+        </div>
+
+    </main>
+
+</body>
+
+</html>
